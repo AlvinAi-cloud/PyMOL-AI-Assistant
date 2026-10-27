@@ -104,6 +104,7 @@ def inspect_turn():
             render_widget = QtWidgets.QWidget()
             window.render_dialog(render_widget)
             form = render_widget._pymol_render_form
+            form.button_lock.setChecked(False)
             form.input_width.setValue(400)
             form.input_height.setValue(300)
             form.button_draw.click()

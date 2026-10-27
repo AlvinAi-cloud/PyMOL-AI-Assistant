@@ -31,6 +31,15 @@ def main():
     environment["PREFIX_PATH"] = str(native)
     if os.name == "nt":
         environment["PATH"] = str(native / "bin") + os.pathsep + environment.get("PATH", "")
+        # Git Bash also contains a Unix link.exe. Rust must use MSVC's linker.
+        tools = environment.get("VCToolsInstallDir") or environment.get("VCTOOLSINSTALLDIR")
+        if not tools:
+            raise RuntimeError("Initialize the MSVC x64 developer environment before building.")
+        linker = Path(tools) / "bin/Hostx64/x64/link.exe"
+        if not linker.is_file():
+            raise RuntimeError("MSVC x64 linker was not found: " + str(linker))
+        environment["CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_LINKER"] = str(linker)
+        environment["PATH"] = str(linker.parent) + os.pathsep + environment["PATH"]
     elif sys.platform == "darwin":
         environment.update(CC="/usr/bin/clang", CXX="/usr/bin/clang++", MACOSX_DEPLOYMENT_TARGET="11.0")
     if not args.skip_engine:

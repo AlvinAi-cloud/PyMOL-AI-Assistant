@@ -23,6 +23,7 @@ def inspect(menu):
   widgets=[a.defaultWidget() for a in menu.actions() if isinstance(a,QtWidgets.QWidgetAction)]
   assert len(widgets)==1,'Popup did not contain its render widget'
   widget=widgets[0]
+  widget.findChild(QtWidgets.QCheckBox,'button_lock').setChecked(False)
   widget.findChild(QtWidgets.QSpinBox,'input_width').setValue(400)
   widget.findChild(QtWidgets.QSpinBox,'input_height').setValue(300)
   widget.findChild(QtWidgets.QPushButton,'button_draw').click()
