@@ -43,7 +43,7 @@ def main():
         extracted.mkdir()
         with tarfile.open(archive) as source:
             source.extractall(extracted, filter="data")
-        source = next(extracted.glob("*/setup.py")).parent
+        source = extracted if (extracted / "setup.py").is_file() else next(extracted.glob("*/setup.py")).parent
         # Do not let upstream git-version detection inherit this wrapper repo
         # when compiling its verified source archive.
         environment["GIT_CEILING_DIRECTORIES"] = str(work)
