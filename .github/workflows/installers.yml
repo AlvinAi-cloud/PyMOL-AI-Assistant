@@ -67,6 +67,9 @@ jobs:
       - name: Frozen GUI regression (Linux software OpenGL)
         if: runner.os == 'Linux'
         run: LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1440x1000x24' python scripts/test_frozen.py --work .build/native
+      - name: Prepare Windows CI software OpenGL
+        if: runner.os == 'Windows'
+        run: python scripts/ci_windows_graphics.py prepare --destination .build/ci-mesa
       - name: Frozen GUI regression (Mac and Windows)
         if: runner.os != 'Linux'
         run: python scripts/test_frozen.py --work .build/native
@@ -92,6 +95,7 @@ jobs:
           $env:PYMOL_AI_SKIP_SETUP = '1'
           $env:PYMOL_POPUP_QA = Join-Path $env:RUNNER_TEMP 'installed-popup'
           $env:PYMOL_AI_ASSISTANT_PROFILE = Join-Path $env:PYMOL_POPUP_QA 'profile'
+          python scripts/ci_windows_graphics.py install --app "$target"
           $app = Start-Process (Join-Path $target 'PyMOL AI-Assistant.exe') -ArgumentList '-r', "$env:GITHUB_WORKSPACE/scripts/qa_draw_ray_popup.py" -Wait -PassThru
           if ($app.ExitCode -ne 0) { throw 'Installed app failed' }
           $result = Get-Content (Join-Path $env:PYMOL_POPUP_QA 'result.json') | ConvertFrom-Json

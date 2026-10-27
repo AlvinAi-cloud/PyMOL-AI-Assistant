@@ -133,6 +133,7 @@ def inspect_turn():
                 "consoleFeedback": requests[3]["toolResults"][-1],
                 "windowAndViewportImagesDelivered": True, "sequenceExtractedOnDemand": True,
                 "drawAndRayButtons": True, "pyqtUiLoader": True,
+                "renderer": list(dock.cmd.get_renderer()),
                 "inputHeight": dock.input.height(), "conversationHeight": dock.chat.height(),
             })
             QtWidgets.QApplication.instance().quit()

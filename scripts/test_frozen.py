@@ -7,6 +7,7 @@ import subprocess
 import sys
 
 from package_native import frozen_bundle
+from ci_windows_graphics import test_driver
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -31,17 +32,18 @@ def main():
         environment["PATH"] = os.pathsep.join(map(str, [executable.parent, system / "System32", system]))
     else:
         environment["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
-    for script, folder, setting in [("qa_draw_ray_popup.py", "popup", "PYMOL_POPUP_QA"), ("qa_gui_agent.py", "agent", "PYMOL_AI_QA_OUTPUT")]:
-        output = work / ("qa-" + folder)
-        output.mkdir(exist_ok=True)
-        result = output / "result.json"
-        result.unlink(missing_ok=True)
-        environment[setting] = str(output)
-        environment["PYMOL_AI_ASSISTANT_PROFILE"] = str(output / "profile")
-        with (output / "stdout.log").open("w") as log:
-            subprocess.run([str(executable), "-r", str(ROOT / "scripts" / script)], env=environment, timeout=100, check=True, stdout=log, stderr=subprocess.STDOUT)
-        if not result.is_file() or not json.loads(result.read_text()).get("ok"):
-            raise SystemExit("Frozen GUI regression failed: " + str(result))
+    with test_driver(executable.parent):
+        for script, folder, setting in [("qa_draw_ray_popup.py", "popup", "PYMOL_POPUP_QA"), ("qa_gui_agent.py", "agent", "PYMOL_AI_QA_OUTPUT")]:
+            output = work / ("qa-" + folder)
+            output.mkdir(exist_ok=True)
+            result = output / "result.json"
+            result.unlink(missing_ok=True)
+            environment[setting] = str(output)
+            environment["PYMOL_AI_ASSISTANT_PROFILE"] = str(output / "profile")
+            with (output / "stdout.log").open("w") as log:
+                subprocess.run([str(executable), "-r", str(ROOT / "scripts" / script)], env=environment, timeout=100, check=True, stdout=log, stderr=subprocess.STDOUT)
+            if not result.is_file() or not json.loads(result.read_text()).get("ok"):
+                raise SystemExit("Frozen GUI regression failed: " + str(result))
 
 
 if __name__ == "__main__":

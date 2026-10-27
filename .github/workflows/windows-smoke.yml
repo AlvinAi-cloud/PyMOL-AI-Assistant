@@ -30,6 +30,9 @@ jobs:
         shell: pwsh
         run: |
           python -c "import pathlib,py_compile; root=next(pathlib.Path('.build/native/freeze').glob('exe.*')); py_compile.compile('pymol_ai_assistant/app.py',cfile=str(root/'lib/pymol_ai_assistant/app.pyc'),doraise=True,optimize=1)"
+      - name: Prepare software OpenGL for the headless runner
+        shell: pwsh
+        run: python scripts/ci_windows_graphics.py prepare --destination .build/ci-mesa
       - name: Run real GUI, Draw/Ray, vision and sequence tests
         shell: pwsh
         env:

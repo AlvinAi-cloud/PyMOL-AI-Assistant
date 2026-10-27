@@ -101,6 +101,7 @@ def main():
         run(["hdiutil", "create", "-volname", "PyMOL AI-Assistant", "-srcfolder", stage, "-ov", "-format", "UDZO", destination])
         run(["hdiutil", "verify", destination])
     elif os.name == "nt":
+        assert not (bundle / "opengl32.dll").exists(), "CI graphics driver must not enter the installer"
         compiler = shutil.which("ISCC.exe") or str(Path(os.environ.get("ProgramFiles(x86)", "C:/Program Files (x86)")) / "Inno Setup 6/ISCC.exe")
         run([compiler, "/DAppVersion=" + __version__, "/DBundleDir=" + str(bundle), "/DOutputDir=" + str(output), ROOT / "packaging/windows/installer.iss"])
         destination = output / ("PyMOL-AI-Assistant-" + __version__ + "-Windows-x64-Setup.exe")
