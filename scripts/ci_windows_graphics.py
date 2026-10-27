@@ -13,38 +13,11 @@ URL = "https://github.com/pal1000/mesa-dist-win/releases/download/26.2.4/mesa3d-
 SHA256 = "351fc8c8b695878ffb3eaa044b3ead08672a48b1a045e3c3e3975811df0f6695"
 
 
-def deploy(app):
-    source = os.environ.get("PYMOL_CI_MESA")
-    if os.name != "nt" or not source:
-        return []
-    copied = []
-    for name in ["opengl32.dll", "libgallium_wgl.dll", "libglapi.dll", "dxil.dll"]:
-        path = Path(source) / name
-        if not path.is_file():
-            continue
-        target = Path(app) / path.name
-        if not target.exists():
-            shutil.copy2(path, target)
-            copied.append(target)
-    if not (Path(app) / "opengl32.dll").is_file():
-        raise RuntimeError("CI software OpenGL driver was not deployed")
-    marker = Path(app) / "PyMOL AI-Assistant.exe.local"
-    if not marker.exists():
-        marker.touch()
-        copied.append(marker)
-    os.environ["QT_OPENGL"] = "desktop"
-    os.environ["QT_OPENGL_DLL"] = str(Path(app) / "opengl32.dll")
-    return copied
-
-
 @contextmanager
 def test_driver(app):
-    files = deploy(app)
-    try:
-        yield
-    finally:
-        for path in files:
-            path.unlink(missing_ok=True)
+    # The ephemeral runner's registered ICD is shared by Qt and the engine.
+    # No graphics DLLs are copied into the distribution.
+    yield
 
 
 def main():
@@ -54,7 +27,6 @@ def main():
     parser.add_argument("--app", type=Path)
     args = parser.parse_args()
     if args.operation == "install":
-        deploy(args.app)
         return
     root = args.destination.resolve()
     root.mkdir(parents=True, exist_ok=True)
@@ -69,6 +41,19 @@ def main():
     driver = root / "x64"
     if not (driver / "opengl32.dll").is_file():
         raise RuntimeError("The expected x64 Mesa driver is missing")
+    if os.name != "nt" or os.environ.get("GITHUB_ACTIONS") != "true":
+        raise RuntimeError("Software driver registration is restricted to ephemeral GitHub Windows runners")
+    import winreg
+    system = Path(os.environ["SystemRoot"]) / "System32"
+    shutil.copy2(driver / "libgallium_wgl.dll", system / "mesadrv.dll")
+    for name in ["libglapi.dll", "dxil.dll"]:
+        if (driver / name).is_file():
+            shutil.copy2(driver / name, system / name)
+    key_path = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\MSOGL"
+    with winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, key_path) as key:
+        winreg.SetValueEx(key, "DLL", 0, winreg.REG_SZ, "mesadrv.dll")
+        for name, value in [("DriverVersion", 1), ("Flags", 1), ("Version", 2)]:
+            winreg.SetValueEx(key, name, 0, winreg.REG_DWORD, value)
     with Path(os.environ["GITHUB_ENV"]).open("a", encoding="utf-8") as output:
         output.write("PYMOL_CI_MESA=" + str(driver) + "\nGALLIUM_DRIVER=llvmpipe\nLIBGL_ALWAYS_SOFTWARE=1\n")
     print("Pinned CI-only Mesa driver ready: " + str(driver))

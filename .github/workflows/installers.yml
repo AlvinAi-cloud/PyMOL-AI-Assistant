@@ -96,8 +96,6 @@ jobs:
           $env:PYMOL_POPUP_QA = Join-Path $env:RUNNER_TEMP 'installed-popup'
           $env:PYMOL_AI_ASSISTANT_PROFILE = Join-Path $env:PYMOL_POPUP_QA 'profile'
           python scripts/ci_windows_graphics.py install --app "$target"
-          $env:QT_OPENGL = 'desktop'
-          $env:QT_OPENGL_DLL = Join-Path $target 'opengl32.dll'
           $app = Start-Process (Join-Path $target 'PyMOL AI-Assistant.exe') -ArgumentList '-r', "$env:GITHUB_WORKSPACE/scripts/qa_draw_ray_popup.py" -Wait -PassThru
           if ($app.ExitCode -ne 0) { throw 'Installed app failed' }
           $result = Get-Content (Join-Path $env:PYMOL_POPUP_QA 'result.json') | ConvertFrom-Json
