@@ -31,7 +31,7 @@ options = {
         "excludes": ["tkinter", "PyQt6", "PySide2", "PySide6", "PyQt5.QtSql", "PyQt5.QtMultimedia", "PyQt5.QtBluetooth", "PyQt5.QtNfc", "PyQt5.QtTextToSpeech", "PyQt5.QtSensors", "PyQt5.QtSerialPort", "matplotlib", "scipy", "pandas", "pytest", "pip", "setuptools", "test", "unittest"],
         "include_files": [] if sys.platform == "darwin" else [(str(PYMOL_DATA), "pymol-data"), (str(ROOT / "ai"), "ai"), (str(ROOT / "licenses"), "licenses"), (str(ROOT / "LICENSE"), "LICENSE"), (str(ROOT / "README.md"), "README.md")] + [(str(ROOT / "icons" / (name + ext)), "icons/" + name + ext) for name in ["PyMOL", "PDB", "CIF", "PSE", "MOL", "MOL2"] for ext in [".png", ".ico"]],
         "include_msvcr": os.name == "nt",
-        "bin_excludes": ["pyqt5qmlplugin.dll"] if os.name == "nt" else [],
+        "bin_excludes": ["pyqt5qmlplugin.dll", "pyqt5.dll"] if os.name == "nt" else [],
         "zip_include_packages": [],
         "zip_exclude_packages": ["*"],
         "optimize": 1,
