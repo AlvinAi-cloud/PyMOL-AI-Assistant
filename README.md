@@ -1,6 +1,6 @@
 # PyMOL AI-Assistant standalone package
 
-Stable Intel Mac package: 0.3.1. Portable source: 0.4.0 development. This independently prepared package combines official Open-Source PyMOL 3.1.0 with a docked AI assistant. It is not a Schrödinger distribution or endorsement. PyMOL is a trademark of Schrödinger, LLC.
+Native standalone package: 0.4.0. This independently prepared package combines official Open-Source PyMOL 3.1.0 with a docked AI assistant. It is not a Schrödinger distribution or endorsement. PyMOL is a trademark of Schrödinger, LLC.
 
 ## Use
 
@@ -8,7 +8,7 @@ Stable Intel Mac package: 0.3.1. Portable source: 0.4.0 development. This indepe
 - **Windows x64:** run **Setup.exe** and launch **PyMOL AI-Assistant** from the Start menu. The installer runs per user and offers a desktop shortcut.
 - **Ubuntu amd64:** install the DEB with `sudo apt install ./PyMOL-AI-Assistant-0.4.0-Ubuntu-amd64.deb`, then launch it from the applications menu.
 
-Python, Conda, Rust, and Codex are not required by installed apps. Native graphics drivers with OpenGL 2.1 or newer and normal desktop OS libraries remain required. Windows CI uses a pinned Mesa software driver only for testing; that driver is removed before building the installer. The existing `pymol` Terminal shortcut on the development Mac is unaffected.
+Python, Conda, Rust, and Codex are not required by installed apps. Native graphics drivers with OpenGL 2.1 or newer and normal desktop OS libraries remain required. Windows CI registers a pinned Mesa software driver on its disposable test runner; this driver is never included in the installer. The existing `pymol` Terminal shortcut on the development Mac is unaffected.
 
 On first launch, choose which document types should open here by default: PDB (`.pdb`), mmCIF (`.cif`, `.mmcif`), PyMOL sessions (`.pse`), Mol/SDF (`.mol`, `.sdf`) and Mol2 (`.mol2`). On macOS and Ubuntu, only checked types change. Windows registers the checked formats and opens Settings for the user to confirm the preferred app. Choose Skip to keep existing preferences. Reopen this setup through **AI Assistant → File Types…**. PyMOL-based app and format-labeled document icons are bundled. Finder may need a moment to refresh cached icons after a preference changes. File association setup is per user and requires no administrator password.
 
@@ -24,15 +24,15 @@ Before changing a scene, the app automatically saves a private recovery checkpoi
 
 The assistant panel's initial width is 238 logical pixels, 30% narrower than the original 340-pixel setting. Users can still resize or detach it. The app icon declaration and Qt application icon both use the bundled PyMOL artwork.
 
-Normal PyMOL tools work offline. Settings, saved API credentials, ChatGPT sessions, launch logs, conversation history and checkpoints live in `~/Library/Application Support/PyMOL AI-Assistant`, outside documents and exports. Credential files are restricted to the current user; they are not encrypted by this initial file-based helper. Disconnect retains saved API settings; Forget removes them. ChatGPT sign-out attempts revocation and reports an unconfirmed revocation.
+Normal PyMOL tools work offline. Settings, saved API credentials, ChatGPT sessions, launch logs, conversation history and checkpoints live in `~/Library/Application Support/PyMOL AI-Assistant`, on macOS, `%LOCALAPPDATA%/PyMOL AI-Assistant` on Windows, or `$XDG_CONFIG_HOME/pymol-ai-assistant` (default `~/.config/pymol-ai-assistant`) on Linux, outside documents and exports. Credential files are restricted to the current user; they are not encrypted by this initial file-based helper. Disconnect retains saved API settings; Forget removes them. ChatGPT sign-out attempts revocation and reports an unconfirmed revocation.
 
-The app ignores other PyMOL startup scripts/plugins at launch. Its standard PyMOL menus remain available for molecular workflows. The stable package supports Intel macOS. Native workflows for Apple Silicon, Windows x64, and Ubuntu amd64 are included; those builds remain unverified until their CI jobs pass. Developer ID signing/notarization and validation on other Macs remain release work. A local ad-hoc signature does not constitute Apple notarization.
+The app ignores other PyMOL startup scripts/plugins at launch. Its standard PyMOL menus remain available for molecular workflows. Native Apple Silicon, Intel Mac, Windows x64, and Ubuntu amd64 builds have passed their frozen GUI and Draw/Ray regression tests. Windows and Ubuntu installers are also checked by installing the package and exercising the installed Draw/Ray popup. Developer ID signing/notarization and validation on other Macs remain release work. A local ad-hoc signature does not constitute Apple notarization.
 
 ## Source and build
 
 The upstream engine is pinned to official tag `v3.1.0`, commit `f51e58f6b08308c41c85b9d12a23231f49ca325a`, from https://github.com/schrodinger/pymol-open-source. It is compiled locally, not taken from the third-party Apple Silicon DMG. No upstream source patches are used. Fast MMTF/msgpack-c support is disabled in this initial build; VMD molfile plugins and COLLADA support retain the upstream build defaults.
 
-`scripts/build_macos.py` documents the build pipeline. `setup.py` freezes Python/PyMOL/Qt and bundles the independently built AI helper. The source of that helper is in `ai-helper/` with a locked Cargo dependency graph. The Python adapter/panel is in `pymol_ai_assistant/`.
+`scripts/build_native.py` builds each native platform; `scripts/build_macos.py` retains the original Intel Mac build pipeline. `setup.py` freezes Python/PyMOL/Qt and bundles the independently built AI helper. The source of that helper is in `ai-helper/` with a locked Cargo dependency graph. The Python adapter/panel is in `pymol_ai_assistant/`.
 
 Application integration and the RDataCraft-derived helper are GPL-3.0-or-later. PlasmidCraft contributions retain their MIT notice. Open-Source PyMOL and all bundled dependencies retain their own licenses; see `LICENSE` and `licenses/`.
 
@@ -44,4 +44,4 @@ Version 0.3.1 adapts the compiled Draw/Ray form controller to the QWidget expect
 
 ## Native platform installers
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [.github/workflows/installers.yml](.github/workflows/installers.yml). Expected outputs are a native Apple Silicon DMG, a Windows x64 Setup EXE, and an Ubuntu amd64 DEB. Successful native jobs upload installers as GitHub Actions artifacts. No installer is represented as complete until its native GUI checks pass.
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [.github/workflows/installers.yml](.github/workflows/installers.yml). Outputs are native Apple Silicon and Intel Mac DMGs, a Windows x64 Setup EXE, and an Ubuntu amd64 DEB. Successful native jobs upload installers as GitHub Actions artifacts. No installer is represented as complete until its native GUI checks pass.
