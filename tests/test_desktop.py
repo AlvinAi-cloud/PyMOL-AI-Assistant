@@ -19,6 +19,21 @@ class DesktopTests(unittest.TestCase):
                 with mock.patch.object(sys, "platform", platform), mock.patch.object(sys, "executable", "/tmp/Standalone App/App"):
                     self.assertEqual(config.resources_dir(), Path("/tmp/Standalone App").resolve())
 
+    def test_windows_registers_bundled_engine_dependencies_before_import(self):
+        from pymol_ai_assistant import app
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            qt_bin = root / "lib/PyQt5/Qt5/bin"
+            qt_bin.mkdir(parents=True)
+            handle = object()
+            with mock.patch.object(sys, "frozen", True, create=True), mock.patch.object(sys, "platform", "win32"), mock.patch.object(sys, "executable", str(root / "Application.exe")), mock.patch.object(app.os, "add_dll_directory", return_value=handle, create=True) as register, mock.patch.object(app, "_DLL_DIRECTORY_HANDLES", []), mock.patch.dict(app.os.environ, {}, clear=False):
+                app.prepare_environment()
+                registered = [call.args[0] for call in register.call_args_list]
+                self.assertIn(str(qt_bin), registered)
+                self.assertIn(str(root), registered)
+                self.assertIn(handle, app._DLL_DIRECTORY_HANDLES)
+                self.assertIn(str(qt_bin), app.os.environ["PATH"])
+
     def test_linux_only_sets_checked_types_and_confirms_defaults(self):
         calls = []
         def run(args, **kwargs):

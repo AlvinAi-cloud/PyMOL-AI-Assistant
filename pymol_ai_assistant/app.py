@@ -11,9 +11,21 @@ from . import APP_NAME, __version__
 from .config import profile_dir, resources_dir, write_json
 
 
+_DLL_DIRECTORY_HANDLES = []
+
 def prepare_environment():
     if getattr(sys, "frozen", False):
         resources = resources_dir()
+        if sys.platform == "win32":
+            # cx_Freeze's Qt hook collects shared native libraries here.
+            # PyMOL imports its engine before importing Qt, so register these
+            # directories first and retain the loader handles for the process.
+            candidates = [resources, resources / "lib", resources / "lib/PyQt5/Qt5/bin",
+                          resources / "lib/PyQt5/bin", resources / "lib/PyQt5"]
+            directories = [path for path in candidates if path.is_dir()]
+            for directory in directories:
+                _DLL_DIRECTORY_HANDLES.append(os.add_dll_directory(str(directory)))
+            os.environ["PATH"] = os.pathsep.join([str(path) for path in directories] + [os.environ.get("PATH", "")])
         data = resources / "pymol-data"
         os.environ["PYMOL_PATH"] = str(data)
         os.environ["PYMOL_DATA"] = str(data / "data")

@@ -4,9 +4,13 @@ Stable Intel Mac package: 0.3.1. Portable source: 0.4.0 development. This indepe
 
 ## Use
 
-Drag **PyMOL AI-Assistant.app** into Applications and open it. Python, Conda, Rust, and Codex are not required by the packaged app. The existing `pymol` Terminal shortcut is unaffected.
+- **macOS:** open the DMG for your processor, drag **PyMOL AI-Assistant.app** into Applications, and launch that copy.
+- **Windows x64:** run **Setup.exe** and launch **PyMOL AI-Assistant** from the Start menu. The installer runs per user and offers a desktop shortcut.
+- **Ubuntu amd64:** install the DEB with `sudo apt install ./PyMOL-AI-Assistant-0.4.0-Ubuntu-amd64.deb`, then launch it from the applications menu.
 
-On first launch, choose which document types should open here by default: PDB (`.pdb`), mmCIF (`.cif`, `.mmcif`), PyMOL sessions (`.pse`), Mol/SDF (`.mol`, `.sdf`) and Mol2 (`.mol2`). Only checked types change. Choose Skip to keep existing preferences. Reopen this setup through **AI Assistant → File Types…**. PyMOL-based app and format-labeled document icons are bundled. Finder may need a moment to refresh cached icons after a preference changes. File association setup is per user and requires no administrator password.
+Python, Conda, Rust, and Codex are not required by installed apps. Native graphics drivers and normal desktop OS libraries remain required. The existing `pymol` Terminal shortcut on the development Mac is unaffected.
+
+On first launch, choose which document types should open here by default: PDB (`.pdb`), mmCIF (`.cif`, `.mmcif`), PyMOL sessions (`.pse`), Mol/SDF (`.mol`, `.sdf`) and Mol2 (`.mol2`). On macOS and Ubuntu, only checked types change. Windows registers the checked formats and opens Settings for the user to confirm the preferred app. Choose Skip to keep existing preferences. Reopen this setup through **AI Assistant → File Types…**. PyMOL-based app and format-labeled document icons are bundled. Finder may need a moment to refresh cached icons after a preference changes. File association setup is per user and requires no administrator password.
 
 Use PyMOL’s normal File menu to open structures or sessions. The AI Assistant panel places Accounts and Example together above a larger conversation and message input. Connection/progress status shares the commands/results box. Use PyMOL’s existing Export Image As menu for images. Draw/Ray and the bundled Designer dialogs have compiled forms; the PyQt UI loader is also included.
 
