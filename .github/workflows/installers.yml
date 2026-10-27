@@ -53,6 +53,7 @@ jobs:
       - name: Record build environment
         run: |
           mkdir -p artifacts
+          cp upstream/manifest.json artifacts/official-pymol-source.json
           micromamba list --explicit > artifacts/build-environment.txt
           rustup show active-toolchain > artifacts/rust-toolchain.txt
       - name: Build official PyMOL, AI helper and standalone app

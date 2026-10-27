@@ -44,6 +44,9 @@ def main():
         with tarfile.open(archive) as source:
             source.extractall(extracted, filter="data")
         source = next(extracted.glob("*/setup.py")).parent
+        # Do not let upstream git-version detection inherit this wrapper repo
+        # when compiling its verified source archive.
+        environment["GIT_CEILING_DIRECTORIES"] = str(work)
         # Build via official setuptools options; source files are not patched.
         run([sys.executable, "setup.py", "--use-msgpackc=no", "install"], cwd=source, env=environment)
     environment["CARGO_TARGET_DIR"] = str(work / "rust-target")
