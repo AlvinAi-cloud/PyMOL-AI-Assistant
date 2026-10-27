@@ -4,6 +4,12 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      target:
+        description: Native platform to build
+        type: choice
+        default: all
+        options: [all, Windows-x64, macOS-Apple-Silicon, macOS-Intel, Ubuntu-amd64]
 permissions:
   contents: read
 jobs:
@@ -12,19 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: macOS-Apple-Silicon
-            os: macos-15
-            arch: arm64
-          - platform: macOS-Intel
-            os: macos-15-intel
-            arch: x86_64
-          - platform: Windows-x64
-            os: windows-2022
-            arch: AMD64
-          - platform: Ubuntu-amd64
-            os: ubuntu-22.04
-            arch: x86_64
+        include: ${{ fromJSON(inputs.target == 'macOS-Apple-Silicon' && '[{"platform":"macOS-Apple-Silicon","os":"macos-15","arch":"arm64"}]' || inputs.target == 'macOS-Intel' && '[{"platform":"macOS-Intel","os":"macos-15-intel","arch":"x86_64"}]' || inputs.target == 'Windows-x64' && '[{"platform":"Windows-x64","os":"windows-2022","arch":"AMD64"}]' || inputs.target == 'Ubuntu-amd64' && '[{"platform":"Ubuntu-amd64","os":"ubuntu-22.04","arch":"x86_64"}]' || '[{"platform":"macOS-Apple-Silicon","os":"macos-15","arch":"arm64"},{"platform":"macOS-Intel","os":"macos-15-intel","arch":"x86_64"},{"platform":"Windows-x64","os":"windows-2022","arch":"AMD64"},{"platform":"Ubuntu-amd64","os":"ubuntu-22.04","arch":"x86_64"}]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     defaults:
@@ -56,8 +50,20 @@ jobs:
           cp upstream/manifest.json artifacts/official-pymol-source.json
           micromamba list --explicit > artifacts/build-environment.txt
           rustup show active-toolchain > artifacts/rust-toolchain.txt
+      - name: Restore native Rust build cache
+        id: rust-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .build/native/rust-target
+          key: native-rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('ai-helper/Cargo.lock', 'ai-helper/Cargo.toml', 'ai-helper/src/**') }}
       - name: Build official PyMOL, AI helper and standalone app
         run: python scripts/build_native.py --work .build/native
+      - name: Preserve native Rust build cache
+        if: always() && steps.rust-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .build/native/rust-target
+          key: ${{ steps.rust-cache.outputs.cache-primary-key }}
       - name: Frozen GUI regression (Linux software OpenGL)
         if: runner.os == 'Linux'
         run: LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1440x1000x24' python scripts/test_frozen.py --work .build/native
@@ -97,6 +103,14 @@ jobs:
           path: artifacts/
           if-no-files-found: error
           retention-days: 30
+      - name: Preserve failed Windows app for startup diagnosis
+        if: failure() && runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Debug-frozen-Windows
+          path: .build/native/freeze/exe.*/
+          if-no-files-found: ignore
+          retention-days: 3
       - name: Preserve regression logs
         if: always()
         uses: actions/upload-artifact@v4

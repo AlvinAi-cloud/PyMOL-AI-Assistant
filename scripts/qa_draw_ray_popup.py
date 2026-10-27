@@ -34,6 +34,8 @@ def inspect(menu):
  except Exception:
   errors.append(traceback.format_exc());finish(menu)
 def finish(menu=None):
+ if menu is None and not errors:
+  errors.append('Timed out before the Draw/Ray popup test completed')
  if menu:
   try:
    if not errors:

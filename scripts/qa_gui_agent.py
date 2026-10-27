@@ -99,7 +99,10 @@ def inspect_turn():
             assert "Context…" not in labels and "Export PNG…" not in labels
             assert not hasattr(dock, "apply_button") and not hasattr(dock, "undo_button")
             assert dock.chat.geometry().bottom() < dock.input.geometry().top()
-            window.grab().save(str(OUTPUT / "automatic-control.png"))
+            from pymol_ai_assistant.vision import capture_view
+            from pymol.Qt import QtGui
+            captured, _ = capture_view(window, "window")
+            QtGui.QImage.fromData(base64.b64decode(captured.split(",", 1)[1])).save(str(OUTPUT / "automatic-control.png"))
             QtWidgets.QApplication.instance().windowIcon().pixmap(256, 256).save(str(OUTPUT / "app-icon.png"))
             render_widget = QtWidgets.QWidget()
             window.render_dialog(render_widget)
