@@ -1,0 +1,39 @@
+name: Windows standalone smoke test
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_run:
+        description: Native Windows build containing the frozen debug app
+        type: string
+        required: true
+permissions:
+  contents: read
+  actions: read
+jobs:
+  smoke:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download standalone app without installing Conda
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_RUN: ${{ inputs.artifact_run }}
+        run: |
+          if ($env:BUILD_RUN -notmatch '^\d+$') { throw 'Invalid build run ID' }
+          gh run download $env:BUILD_RUN --repo $env:GITHUB_REPOSITORY --name Debug-frozen-Windows --dir .build/native/freeze
+      - name: Run real GUI, Draw/Ray, vision and sequence tests
+        shell: pwsh
+        run: python scripts/test_frozen.py --work .build/native
+      - name: Preserve diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Clean-Windows-QA
+          path: .build/native/qa-*/
+          if-no-files-found: ignore
+          retention-days: 7
