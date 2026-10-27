@@ -2,6 +2,21 @@
 
 Native standalone package: 0.4.0. This independently prepared package combines official Open-Source PyMOL 3.1.0 with a docked AI assistant. It is not a Schrödinger distribution or endorsement. PyMOL is a trademark of Schrödinger, LLC.
 
+## Download installers
+
+These standalone installers also provide a convenient way to set up **free, open-source PyMOL 3.1.0** as a normal desktop app. Python and Conda are not required. You can use PyMOL’s standard molecular visualization tools offline without connecting an AI account. AI features are optional; charges from your chosen AI provider may apply.
+
+| Platform | Version 0.4.0 download |
+| --- | --- |
+| Mac — Apple Silicon (M-series) | [Download arm64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/PyMOL-AI-Assistant-0.4.0-macOS-arm64.dmg) |
+| Mac — Intel | [Download x86_64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/PyMOL-AI-Assistant-0.4.0-macOS-x86_64.dmg) |
+| Windows — x64 | [Download Setup EXE](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/PyMOL-AI-Assistant-0.4.0-Windows-x64-Setup.exe) |
+| Ubuntu — amd64 (built on 22.04) | [Download DEB](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/PyMOL-AI-Assistant-0.4.0-Ubuntu-amd64.deb) |
+
+[All release files and source](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/tag/v0.4.0) · [SHA-256 checksums](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/SHA256SUMS-0.4.0.txt)
+
+Mac builds are ad-hoc signed and are not Apple-notarized; the Windows installer is unsigned. Your OS may show a download warning. These downloads reuse the installers that passed native build and GUI checks.
+
 ## Use
 
 - **macOS:** open the DMG for your processor, drag **PyMOL AI-Assistant.app** into Applications, and launch that copy.
