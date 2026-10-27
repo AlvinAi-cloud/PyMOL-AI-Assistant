@@ -1,0 +1,12 @@
+{
+  "origin": "RDataCraft desktop/ai-helper, adapted from MIT-licensed PlasmidCraft AI components",
+  "files": {
+    "Cargo.toml": "fde8c47a60f32239e686b32980f0aa7b68fa5a0ba7889ac43ca3346b4294d003",
+    "Cargo.lock": "54ccf8f9e5a26d5ac53914ae2d50d62bbb2a9c0793ddd5d5919266debd3243af",
+    "src/ai.rs": "e25097d5e44d6bf3dc58ca81fe9664971eab43d62b73418b9d36d10fceca4b3a",
+    "src/ai_vault.rs": "e3f02179cc621b42c6020907f0777845feb76e60f4dee7049ebe9e44ad842618",
+    "src/main.rs": "36757f3de5a60571d8550f41b7618c07d958f6827b1f19a02bdd6b3ea1a5845e",
+    "src/chatgpt.rs": "1b13b8f9f3b7162009ef89e78a7c09055f76212ec87318eee06dea5d9deea150",
+    "src/ai_models.rs": "f02dd44b9f451f16d909d5085e4cfe79873c44881d651fe923dc297a2d8b42b1"
+  }
+}

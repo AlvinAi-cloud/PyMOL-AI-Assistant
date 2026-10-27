@@ -1,0 +1,22 @@
+name: pymol-ai-build
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy=1.26.4
+  - pyqt=5.15
+  - glew
+  - glm
+  - libpng
+  - freetype
+  - libxml2-devel
+  - libnetcdf
+  - cmake=3.31
+  - setuptools=80.10.2
+  - wheel=0.48.0
+  - certifi
+  - pmw
+  - pip:
+      - cx-Freeze==8.7.3

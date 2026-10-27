@@ -1,0 +1,94 @@
+Metadata-Version: 2.4
+Name: pymol
+Version: 3.1.0
+Summary: PyMOL is a Python-enhanced molecular graphics tool.
+Author-email: Schrodinger <pymol-users@lists.sourceforge.net>
+License: 
+         Open-Source PyMOL Copyright Notice
+         ==================================
+        
+         The Open-Source PyMOL source code is copyrighted, but you can freely
+         use and copy it as long as you don't change or remove any of the
+         Copyright notices. The Open-Source PyMOL product is made available
+         under the following open-source license terms:
+        
+         ----------------------------------------------------------------------
+         Open-Source PyMOL is Copyright (C) Schrodinger, LLC.
+        
+         All Rights Reserved
+        
+         Permission to use, copy, modify, distribute, and distribute modified
+         versions of this software and its built-in documentation for any
+         purpose and without fee is hereby granted, provided that the above
+         copyright notice appears in all copies and that both the copyright
+         notice and this permission notice appear in supporting documentation,
+         and that the name of Schrodinger, LLC not be used in advertising or
+         publicity pertaining to distribution of the software without specific,
+         written prior permission.
+        
+         SCHRODINGER, LLC DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+         INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
+         NO EVENT SHALL SCHRODINGER, LLC BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+         CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+         OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+         OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE
+         USE OR PERFORMANCE OF THIS SOFTWARE.
+         ----------------------------------------------------------------------
+        
+         PyMOL Trademark Notice
+         ======================
+        
+         PyMOL(TM) is a trademark of Schrodinger, LLC. Derivative
+         software which contains PyMOL source code must be plainly
+         distinguished from any and all PyMOL products distributed by Schrodinger,
+         LLC in all publicity, advertising, and documentation.
+        
+         The slogans, "Includes PyMOL(TM).", "Based on PyMOL(TM) technology.",
+         "Contains PyMOL(TM) source code.", and "Built using PyMOL(TM).", may
+         be used in advertising, publicity, and documentation of derivative
+         software provided that the notice, "PyMOL is a trademark of Schrodinger,
+         LLC.", is included in a footnote or at the end of the
+         document.
+        
+         All other endorsements employing the PyMOL trademark require specific,
+         written prior permission.
+        
+        
+Project-URL: Homepage, https://pymol.org
+Project-URL: Documentation, https://pymol.org/dokuwiki
+Project-URL: Repository, https://github.com/schrodinger/pymol-open-source
+Project-URL: Bug Tracker, https://github.com/schrodinger/pymol-open-source/issues
+Project-URL: Changelog, https://github.com/schrodinger/pymol-open-source/blob/master/ChangeLog
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: AUTHORS
+Requires-Dist: numpy<2,>=1.26.4
+Provides-Extra: test
+Requires-Dist: pillow==10.3.0; extra == "test"
+Requires-Dist: pytest==8.2.2; extra == "test"
+Dynamic: license-file
+
+[![CI](https://github.com/schrodinger/pymol-open-source/workflows/CI/badge.svg)](https://github.com/schrodinger/pymol-open-source/actions)
+
+<img src="./data/pymol/icons/icon2.svg" height="100" align="right" />
+
+# Open-Source PyMOL
+
+[Open-source foundation](https://pymol.org/#opensource) of the user-sponsored PyMOL molecular visualization system.
+
+The commercial PyMOL product ("Incentive PyMOL") with maintenance and support is available from https://pymol.org
+
+## Installation
+
+See [INSTALL](INSTALL).
+
+## Contributing
+
+See [DEVELOPERS](DEVELOPERS).
+
+## License
+
+Copyright (c) [Schrodinger, LLC](https://www.schrodinger.com/)
+
+Published under a BSD-like license, see [LICENSE](LICENSE).

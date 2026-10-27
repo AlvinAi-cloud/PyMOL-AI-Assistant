@@ -1,0 +1,12 @@
+# Component attribution
+
+This independently prepared package is called **PyMOL AI-Assistant standalone package**. It is based on official Open-Source PyMOL and is not a Schrödinger product or endorsement. PyMOL is a trademark of Schrödinger, LLC.
+
+- Molecular engine and existing desktop interface: official Open-Source PyMOL v3.1.0, commit `f51e58f6b08308c41c85b9d12a23231f49ca325a`. The engine was compiled from the unmodified upstream source. Its notice is in `Open-Source-PyMOL-LICENSE`.
+- App icon artwork: upstream `data/pymol/icons/icon2.svg`, preserved in `artwork/PyMOL-upstream.svg` in the accompanying source. Format-labeled document icons are generated from this artwork by this package's `scripts/build_icons.py`.
+- Interaction-design reference: ChatMol’s public PyMOL v2 plugin (https://github.com/ChatMol/ChatMol/blob/main/pymol_plugin/v2/chatmol.py) was reviewed for its sequential tool/result loop and Qt-main-thread execution pattern. ChatMol is not installed or bundled; its previous settings and credentials are not restored.
+- Native AI connection helper: adapted from RDataCraft's GPL-3.0-or-later `desktop/ai-helper`, itself adapted from MIT-licensed PlasmidCraft components. Source-file hashes of the original imported helper are recorded in `AI-ORIGIN.json`. Its product label and Cargo package name were changed for this independent app; credentials are stored in a new app profile.
+- Python/Qt assistant integration: GPL-3.0-or-later. Provider-envelope parsing and interaction patterns are adapted from PlasmidCraft; retain `PlasmidCraft-AI-MIT.txt`.
+- Python, Qt, NumPy and native libraries retain their original licenses. Python build-environment metadata and extracted notices are under `python/`; native dependency-prefix metadata and available package-cache notices are under `native/`; Rust dependency licenses are under `rust/`. These inventories also contain build-only dependencies and do not imply every listed package is bundled.
+
+The source distribution includes the assistant/helper sources, locked Rust dependency graph, Python build requirements, upstream revision, and build/audit scripts. Obtain upstream PyMOL sources from https://github.com/schrodinger/pymol-open-source/tree/v3.1.0. Dependency sources are available from the repositories and registry coordinates in the included manifests. No private account credentials, user structures, or previous app configuration is included.

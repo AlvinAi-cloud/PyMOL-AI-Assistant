@@ -1,0 +1,106 @@
+name: Native installers
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    name: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macOS-Apple-Silicon
+            os: macos-15
+            arch: arm64
+          - platform: macOS-Intel
+            os: macos-15-intel
+            arch: x86_64
+          - platform: Windows-x64
+            os: windows-2022
+            arch: AMD64
+          - platform: Ubuntu-amd64
+            os: ubuntu-22.04
+            arch: x86_64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Linux desktop and OpenGL dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgl1-mesa-dev libglu1-mesa-dev libxfixes-dev libegl1 libxkbcommon-x11-0 libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 xvfb xauth patchelf desktop-file-utils shared-mime-info
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: packaging/environment.yml
+          cache-environment: true
+          init-shell: bash
+      - name: Verify native architecture
+        run: python -c "import platform; assert platform.machine() == '${{ matrix.arch }}', platform.machine()"
+      - name: Install Windows installer compiler
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+      - name: Record build environment
+        run: |
+          mkdir -p artifacts
+          micromamba list --explicit > artifacts/build-environment.txt
+          rustup show active-toolchain > artifacts/rust-toolchain.txt
+      - name: Build official PyMOL, AI helper and standalone app
+        run: python scripts/build_native.py --work .build/native
+      - name: Frozen GUI regression (Linux software OpenGL)
+        if: runner.os == 'Linux'
+        run: LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1440x1000x24' python scripts/test_frozen.py --work .build/native
+      - name: Frozen GUI regression (Mac and Windows)
+        if: runner.os != 'Linux'
+        run: python scripts/test_frozen.py --work .build/native
+      - name: Audit Mac native architectures and dependencies
+        if: runner.os == 'macOS'
+        run: python scripts/audit_bundle.py '.build/native/freeze/PyMOL AI-Assistant.app' --architecture '${{ matrix.arch }}' --report artifacts/native-audit.json
+      - name: Create installer
+        run: python scripts/package_native.py --work .build/native --output artifacts
+      - name: Test Ubuntu package installation
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y ./artifacts/*.deb
+          PYMOL_AI_SKIP_SETUP=1 PYMOL_POPUP_QA="$PWD/.build/installed-popup" PYMOL_AI_ASSISTANT_PROFILE="$PWD/.build/installed-popup/profile" LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1440x1000x24' '/opt/pymol-ai-assistant/PyMOL AI-Assistant' -r "$PWD/scripts/qa_draw_ray_popup.py"
+          python -c "import json; assert json.load(open('.build/installed-popup/result.json'))['ok']"
+      - name: Test Windows installer and installed Draw/Ray popup
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = (Get-ChildItem artifacts/*-Windows-x64-Setup.exe).FullName
+          $target = Join-Path $env:RUNNER_TEMP 'PyMOL-AI-Installed'
+          $install = Start-Process $installer -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/SP-', "/DIR=$target" -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Installer failed: $($install.ExitCode)" }
+          $env:PYMOL_AI_SKIP_SETUP = '1'
+          $env:PYMOL_POPUP_QA = Join-Path $env:RUNNER_TEMP 'installed-popup'
+          $env:PYMOL_AI_ASSISTANT_PROFILE = Join-Path $env:PYMOL_POPUP_QA 'profile'
+          $app = Start-Process (Join-Path $target 'PyMOL AI-Assistant.exe') -ArgumentList '-r', "$env:GITHUB_WORKSPACE/scripts/qa_draw_ray_popup.py" -Wait -PassThru
+          if ($app.ExitCode -ne 0) { throw 'Installed app failed' }
+          $result = Get-Content (Join-Path $env:PYMOL_POPUP_QA 'result.json') | ConvertFrom-Json
+          if (-not $result.ok) { throw 'Installed Draw/Ray popup failed' }
+      - name: Preserve installers and build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: PyMOL-AI-Assistant-${{ matrix.platform }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Preserve regression logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: QA-${{ matrix.platform }}
+          path: .build/native/qa-*/
+          if-no-files-found: ignore
+          retention-days: 14
