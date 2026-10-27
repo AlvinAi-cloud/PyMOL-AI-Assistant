@@ -45,6 +45,6 @@ def finish(menu=None):
    menu.close()
   except Exception: errors.append(traceback.format_exc())
  (out/'result.json').write_text(json.dumps({'ok':not errors,'errors':errors},indent=2))
- QtWidgets.QApplication.instance().quit()
+ pymol_qt_gui.window.close()
 QtCore.QTimer.singleShot(900,ready)
 QtCore.QTimer.singleShot(20000,finish)

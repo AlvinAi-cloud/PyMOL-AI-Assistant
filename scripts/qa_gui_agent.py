@@ -68,7 +68,7 @@ threading.Thread(target=server.serve_forever, daemon=True).start()
 
 def fail():
     write_json(OUTPUT / "result.json", {"ok": False, "error": traceback.format_exc()})
-    QtWidgets.QApplication.instance().quit()
+    pymol_qt_gui.window.close()
 
 
 def colors(cmd):
@@ -136,7 +136,7 @@ def inspect_turn():
                 "renderer": list(dock.cmd.get_renderer()),
                 "inputHeight": dock.input.height(), "conversationHeight": dock.chat.height(),
             })
-            QtWidgets.QApplication.instance().quit()
+            pymol_qt_gui.window.close()
     except Exception:
         fail()
 
@@ -171,7 +171,7 @@ def ready():
 def timeout():
     if not (OUTPUT / "result.json").exists():
         write_json(OUTPUT / "result.json", {"ok": False, "error": "GUI agent QA timed out", "requests": len(requests)})
-        QtWidgets.QApplication.instance().quit()
+        pymol_qt_gui.window.close()
 
 
 QtCore.QTimer.singleShot(700, ready)
