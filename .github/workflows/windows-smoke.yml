@@ -34,6 +34,7 @@ jobs:
         shell: pwsh
         env:
           PYMOL_AI_DIAGNOSTICS: '1'
+          QT_DEBUG_PLUGINS: '1'
         run: python scripts/test_frozen.py --work .build/native
       - name: Preserve diagnostics
         if: always()

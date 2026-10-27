@@ -156,6 +156,10 @@ def main():
     import pymol
     startup_note("Importing Qt")
     from pymol.Qt import QtCore
+    if _DIAGNOSTIC_STREAM:
+        QtCore.qInstallMessageHandler(lambda kind, context, message: startup_note("Qt: " + message))
+        startup_note("Qt library paths: " + repr(QtCore.QCoreApplication.libraryPaths()))
+        startup_note("Qt platform path: " + os.environ.get("QT_QPA_PLATFORM_PLUGIN_PATH", ""))
     startup_note("Importing PyMOL GUI")
     from pmg_qt import pymol_qt_gui
     from .ui import install
