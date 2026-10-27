@@ -33,6 +33,9 @@ def main():
     else:
         environment["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
     with test_driver(executable.parent):
+        for name in ["QT_OPENGL", "QT_OPENGL_DLL"]:
+            if name in os.environ:
+                environment[name] = os.environ[name]
         for script, folder, setting in [("qa_draw_ray_popup.py", "popup", "PYMOL_POPUP_QA"), ("qa_gui_agent.py", "agent", "PYMOL_AI_QA_OUTPUT")]:
             output = work / ("qa-" + folder)
             output.mkdir(exist_ok=True)

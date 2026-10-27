@@ -18,13 +18,22 @@ def deploy(app):
     if os.name != "nt" or not source:
         return []
     copied = []
-    for path in Path(source).glob("*.dll"):
+    for name in ["opengl32.dll", "libgallium_wgl.dll", "libglapi.dll", "dxil.dll"]:
+        path = Path(source) / name
+        if not path.is_file():
+            continue
         target = Path(app) / path.name
         if not target.exists():
             shutil.copy2(path, target)
             copied.append(target)
     if not (Path(app) / "opengl32.dll").is_file():
         raise RuntimeError("CI software OpenGL driver was not deployed")
+    marker = Path(app) / "PyMOL AI-Assistant.exe.local"
+    if not marker.exists():
+        marker.touch()
+        copied.append(marker)
+    os.environ["QT_OPENGL"] = "desktop"
+    os.environ["QT_OPENGL_DLL"] = str(Path(app) / "opengl32.dll")
     return copied
 
 
