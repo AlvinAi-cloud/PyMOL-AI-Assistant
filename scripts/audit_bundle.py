@@ -50,4 +50,3 @@ if __name__ == "__main__":
     for failure in result["failures"]:
         print(failure)
     raise SystemExit(0 if result["ok"] else 1)
-

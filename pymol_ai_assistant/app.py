@@ -163,4 +163,3 @@ def main():
     pymol_qt_gui.PyMOLQtGUI = AssistantWindow
     # -k keeps this independent app from executing another installation's startup scripts/plugins.
     pymol.launch([APP_NAME, "-k"] + arguments)
-

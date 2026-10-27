@@ -77,4 +77,3 @@ class AiBridge(QtCore.QObject):
             if not self.process.waitForFinished(500):
                 self.process.kill()
                 self.process.waitForFinished(500)
-

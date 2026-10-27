@@ -51,4 +51,3 @@ def write_json(path, value):
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
-
