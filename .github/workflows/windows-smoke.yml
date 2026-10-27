@@ -26,8 +26,14 @@ jobs:
         run: |
           if ($env:BUILD_RUN -notmatch '^\d+$') { throw 'Invalid build run ID' }
           gh run download $env:BUILD_RUN --repo $env:GITHUB_REPOSITORY --name Debug-frozen-Windows --dir .build/native/freeze
+      - name: Apply current Python runtime adapter to diagnostic build
+        shell: pwsh
+        run: |
+          python -c "import pathlib,py_compile; root=next(pathlib.Path('.build/native/freeze').glob('exe.*')); py_compile.compile('pymol_ai_assistant/app.py',cfile=str(root/'lib/pymol_ai_assistant/app.pyc'),doraise=True,optimize=1)"
       - name: Run real GUI, Draw/Ray, vision and sequence tests
         shell: pwsh
+        env:
+          PYMOL_AI_DIAGNOSTICS: '1'
         run: python scripts/test_frozen.py --work .build/native
       - name: Preserve diagnostics
         if: always()

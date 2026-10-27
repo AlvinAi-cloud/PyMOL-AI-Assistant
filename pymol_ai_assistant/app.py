@@ -12,6 +12,14 @@ from .config import profile_dir, resources_dir, write_json
 
 
 _DLL_DIRECTORY_HANDLES = []
+_DIAGNOSTIC_STREAM = None
+
+
+def startup_note(message):
+    if _DIAGNOSTIC_STREAM:
+        _DIAGNOSTIC_STREAM.write(message + "\n")
+        _DIAGNOSTIC_STREAM.flush()
+
 
 def prepare_environment():
     if getattr(sys, "frozen", False):
@@ -121,7 +129,15 @@ def run_gui_self_test(window, directory):
 
 
 def main():
+    global _DIAGNOSTIC_STREAM
+    if os.environ.get("PYMOL_AI_DIAGNOSTICS"):
+        import faulthandler
+        _DIAGNOSTIC_STREAM = (profile_dir() / "startup-trace.log").open("a", buffering=1, encoding="utf-8")
+        faulthandler.enable(file=_DIAGNOSTIC_STREAM, all_threads=True)
+        faulthandler.dump_traceback_later(20, repeat=True, file=_DIAGNOSTIC_STREAM)
+    startup_note("Entered application main")
     prepare_environment()
+    startup_note("Prepared bundled runtime paths")
     arguments = list(sys.argv[1:])
     test_directory = None
     for argument in list(arguments):
@@ -136,8 +152,11 @@ def main():
         os.replace(log, profile / "launch-previous.log")
     if getattr(sys, "frozen", False):
         sys.stdout = sys.stderr = open(log, "a", buffering=1, encoding="utf-8")
+    startup_note("Importing PyMOL engine")
     import pymol
+    startup_note("Importing Qt")
     from pymol.Qt import QtCore
+    startup_note("Importing PyMOL GUI")
     from pmg_qt import pymol_qt_gui
     from .ui import install
 
@@ -161,9 +180,13 @@ def main():
             return subprocess.Popen(arguments + list(extra_argv))
 
         def __init__(self):
+            startup_note("Constructing PyMOL window")
             super().__init__()
+            startup_note("Constructed PyMOL window")
             def complete():
+                startup_note("Installing assistant panel")
                 install(self)
+                startup_note("Installed assistant panel")
                 if test_directory:
                     run_gui_self_test(self, test_directory)
                 elif getattr(sys, "frozen", False) and not os.environ.get("PYMOL_AI_SKIP_SETUP"):
@@ -174,4 +197,5 @@ def main():
 
     pymol_qt_gui.PyMOLQtGUI = AssistantWindow
     # -k keeps this independent app from executing another installation's startup scripts/plugins.
+    startup_note("Launching PyMOL GUI loop")
     pymol.launch([APP_NAME, "-k"] + arguments)
