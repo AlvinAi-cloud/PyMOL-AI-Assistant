@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import platform
 from pathlib import Path
 import subprocess
 import sys
@@ -23,7 +24,7 @@ def main():
         from pymol_ai_assistant import __version__
         info = plistlib.loads((bundle / "Contents/Info.plist").read_bytes())
         assert info["CFBundleShortVersionString"] == __version__, "Wrong frozen app version for this source"
-    environment = dict(os.environ, PYMOL_AI_SKIP_SETUP="1")
+    environment = dict(os.environ, PYMOL_AI_SKIP_SETUP="1", PYMOL_QA_EXPECT_ARCH=platform.machine())
     # No conda DLL/Qt paths inherited at runtime. Use only the frozen app.
     for name in ["PYTHONPATH", "PYTHONHOME", "QT_PLUGIN_PATH", "QT_QPA_PLATFORM_PLUGIN_PATH"]:
         environment.pop(name, None)
@@ -44,7 +45,11 @@ def main():
             environment[setting] = str(output)
             environment["PYMOL_AI_ASSISTANT_PROFILE"] = str(output / "profile")
             with (output / "stdout.log").open("w") as log:
-                subprocess.run([str(executable), "-r", str(ROOT / "scripts" / script)], env=environment, timeout=100, check=True, stdout=log, stderr=subprocess.STDOUT)
+                arguments = [str(executable), "-r", str(ROOT / "scripts" / script)]
+                if sys.platform == "darwin":
+                    # Exercise Finder/Launch Services architecture selection.
+                    arguments = ["/usr/bin/open", "-n", "-W", str(bundle), "--args", "-r", str(ROOT / "scripts" / script)]
+                subprocess.run(arguments, env=environment, timeout=100, check=True, stdout=log, stderr=subprocess.STDOUT)
             if not result.is_file() or not json.loads(result.read_text()).get("ok"):
                 raise SystemExit("Frozen GUI regression failed: " + str(result))
 

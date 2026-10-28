@@ -23,6 +23,10 @@ for form in forms.glob("*.ui"):
 
 build_base = os.environ.get("PYMOL_AI_BUILD_DIR", str(ROOT / "build"))
 includes = ["pymol", "pymol2", "pmg_qt", "chempy", "pymol_ai_assistant", "numpy", "certifi", "xml", "gzip", "sqlite3", "PyQt5.uic"]
+native_plist = ROOT / "Info.plist"
+if sys.platform == "darwin":
+    from scripts.macos_plist import write_native_plist
+    native_plist = write_native_plist(native_plist, Path(build_base) / "native-Info.plist", platform.machine())
 options = {
     "build": {"build_base": build_base},
     "build_exe": {
@@ -39,7 +43,7 @@ options = {
     "bdist_mac": {
         "bundle_name": "PyMOL AI-Assistant",
         "iconfile": str(ROOT / "icons/PyMOL.icns"),
-        "custom_info_plist": str(ROOT / "Info.plist"),
+        "custom_info_plist": str(native_plist),
         "include_resources": [(str(PYMOL_DATA), "pymol-data"), (str(ROOT / "ai"), "ai"), (str(ROOT / "licenses"), "licenses"), (str(ROOT / "LICENSE"), "LICENSE"), (str(ROOT / "README.md"), "README.md")] + [(str(ROOT / ("icons/" + name + ".icns")), name + ".icns") for name in ["PDB", "CIF", "PSE", "MOL", "MOL2"]],
         "codesign_identity": "-",
         "codesign_deep": True,

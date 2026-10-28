@@ -2,6 +2,8 @@
 import base64
 import json
 import os
+import platform
+import sys
 import threading
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -16,6 +18,17 @@ assert profile_dir() == OUTPUT / "profile", "An isolated QA profile is required"
 OUTPUT.mkdir(parents=True, exist_ok=True)
 requests = []
 state = {"turn": 0}
+process_architecture = platform.machine()
+assert process_architecture == os.environ.get("PYMOL_QA_EXPECT_ARCH", process_architecture)
+translated = False
+if sys.platform == "darwin":
+    import ctypes
+    value = ctypes.c_int(0)
+    size = ctypes.c_size_t(ctypes.sizeof(value))
+    ctypes.CDLL(None).sysctlbyname(b"sysctl.proc_translated", ctypes.byref(value), ctypes.byref(size), None, 0)
+    translated = bool(value.value)
+    assert not translated, "The app launched under Rosetta"
+
 
 
 class Provider(BaseHTTPRequestHandler):
@@ -134,6 +147,7 @@ def inspect_turn():
                 "windowAndViewportImagesDelivered": True, "sequenceExtractedOnDemand": True,
                 "drawAndRayButtons": True, "pyqtUiLoader": True,
                 "renderer": list(dock.cmd.get_renderer()),
+                "processArchitecture": process_architecture, "rosettaTranslated": translated,
                 "inputHeight": dock.input.height(), "conversationHeight": dock.chat.height(),
             })
             pymol_qt_gui.window.close()

@@ -1,6 +1,7 @@
-"""Reject Apple-Silicon-only binaries and dependencies outside the app/macOS."""
+"""Verify native target architecture, Launch Services metadata, and dependencies."""
 import argparse
 import json
+import plistlib
 import subprocess
 from pathlib import Path
 
@@ -9,6 +10,11 @@ MAGIC = {b"\xfe\xed\xfa\xce", b"\xce\xfa\xed\xfe", b"\xfe\xed\xfa\xcf", b"\xcf\x
 
 def audit(bundle, architecture="x86_64"):
     results, failures = [], []
+    info = plistlib.loads((bundle / "Contents/Info.plist").read_bytes())
+    if info.get("LSArchitecturePriority") != [architecture]:
+        failures.append("Info.plist: LSArchitecturePriority must equal [" + architecture + "]")
+    if architecture == "arm64" and info.get("LSRequiresNativeExecution") is not True:
+        failures.append("Info.plist: Apple Silicon app must require native execution")
     for path in sorted(bundle.rglob("*")):
         if not path.is_file() or path.is_symlink():
             continue
@@ -34,7 +40,7 @@ def audit(bundle, architecture="x86_64"):
         results.append({"path": str(path.relative_to(bundle)), "architectures": architectures, "dependencies": dependencies})
     if not results:
         failures.append("No native executable found")
-    return {"ok": not failures, "bundle": bundle.name, "nativeFiles": results, "failures": failures}
+    return {"ok": not failures, "bundle": bundle.name, "launchArchitecturePriority": info.get("LSArchitecturePriority"), "requiresNativeExecution": info.get("LSRequiresNativeExecution", False), "nativeFiles": results, "failures": failures}
 
 
 if __name__ == "__main__":
