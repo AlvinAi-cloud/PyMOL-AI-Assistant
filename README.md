@@ -15,7 +15,9 @@ These standalone installers also provide a convenient way to set up **free, open
 
 [All release files and source](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/tag/v0.4.0) · [SHA-256 checksums](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/SHA256SUMS-0.4.0.txt)
 
-Mac builds are ad-hoc signed and are not Apple-notarized; the Windows installer is unsigned. Your OS may show a download warning. These downloads reuse the installers that passed native build and GUI checks.
+Mac builds are ad-hoc signed and are not Apple-notarized; the Windows installer is unsigned. Your OS may show a download warning. The installers passed native build and GUI checks.
+
+The Apple Silicon download has been revised (build 6) to launch natively as ARM64 without Rosetta. Its architecture preference and native execution are checked through macOS Launch Services, as used by Finder.
 
 ## Use
 
