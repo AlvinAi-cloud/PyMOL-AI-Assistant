@@ -1,29 +1,37 @@
 # PyMOL AI-Assistant standalone package
 
-Native standalone package: 0.4.0. This independently prepared package combines official Open-Source PyMOL 3.1.0 with a docked AI assistant. It is not a Schrödinger distribution or endorsement. PyMOL is a trademark of Schrödinger, LLC.
+Native standalone package: 0.5.0. This independently prepared package combines official Open-Source PyMOL 3.1.0 with a docked AI assistant. It is not a Schrödinger distribution or endorsement. PyMOL is a trademark of Schrödinger, LLC.
+
+## Graphics presets
+
+Version 0.5 adds a **Presets** menu and a **Presets** shortcut below Builder/Properties/Rebuild. Six presets are available: Simple, Soft, Full, Flat, Publication, and Illustration. Hover over each preset and option for explanations, suggested uses and Draw/Ray guidance. Independent options control shadows, silhouettes, white/black/transparent backgrounds, matte/glossy material, and depth cueing. **Render preview (Ray)** uses the existing molecular viewport; the normal Draw/Ray and export menus remain available.
+
+Shadows and silhouettes are Ray-render effects. A transparent background exports alpha in PNG while the interactive viewport remains white. Surface ambient occlusion is most noticeable on surfaces; it does not promise ChimeraX's rendering algorithm. All presets preserve the camera, representations and molecular colors. Publication sets a white background; other presets retain the background. Reset graphics resets lighting and white background without restoring previous atom colors. Existing assistant checkpoint recovery can restore a prior scene.
+
+The AI can use the same named presets and independent options through structured graphics tools and sees actual current rendering settings. Choose a preset first, then adjust independent options. Choose **Ray** inside **Draw/Ray**, or use **Render preview (Ray)**, to see shadows and outlines. Gold Illustration was removed because ordinary molecular coloring plus Illustration provides the same flexibility.
 
 ## Download installers
 
 These standalone installers also provide a convenient way to set up **free, open-source PyMOL 3.1.0** as a normal desktop app. Python and Conda are not required. You can use PyMOL’s standard molecular visualization tools offline without connecting an AI account. AI features are optional; charges from your chosen AI provider may apply.
 
-| Platform | Version 0.4.0 download |
+| Platform | Version 0.5.0 download |
 | --- | --- |
-| Mac — Apple Silicon (M-series) | [Download arm64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/PyMOL-AI-Assistant-0.4.0-macOS-arm64.dmg) |
-| Mac — Intel | [Download x86_64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/PyMOL-AI-Assistant-0.4.0-macOS-x86_64.dmg) |
-| Windows — x64 | [Download Setup EXE](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/PyMOL-AI-Assistant-0.4.0-Windows-x64-Setup.exe) |
-| Ubuntu — amd64 (built on 22.04) | [Download DEB](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/PyMOL-AI-Assistant-0.4.0-Ubuntu-amd64.deb) |
+| Mac — Apple Silicon (M-series) | [Download arm64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/PyMOL-AI-Assistant-0.5.0-macOS-arm64.dmg) |
+| Mac — Intel | [Download x86_64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/PyMOL-AI-Assistant-0.5.0-macOS-x86_64.dmg) |
+| Windows — x64 | [Download Setup EXE](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/PyMOL-AI-Assistant-0.5.0-Windows-x64-Setup.exe) |
+| Ubuntu — amd64 (built on 22.04) | [Download DEB](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/PyMOL-AI-Assistant-0.5.0-Ubuntu-amd64.deb) |
 
-[All release files and source](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/tag/v0.4.0) · [SHA-256 checksums](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.4.0/SHA256SUMS-0.4.0.txt)
+[All release files and source](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/tag/v0.5.0) · [SHA-256 checksums](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/SHA256SUMS-0.5.0.txt)
 
 Mac builds are ad-hoc signed and are not Apple-notarized; the Windows installer is unsigned. Your OS may show a download warning. The installers passed native build and GUI checks.
 
-The Apple Silicon download has been revised (build 6) to launch natively as ARM64 without Rosetta. Its architecture preference and native execution are checked through macOS Launch Services, as used by Finder.
+The Apple Silicon app selects arm64 and requires native execution. Mac architecture preferences and native execution are checked through Launch Services, as used by Finder.
 
 ## Use
 
 - **macOS:** open the DMG for your processor, drag **PyMOL AI-Assistant.app** into Applications, and launch that copy.
 - **Windows x64:** run **Setup.exe** and launch **PyMOL AI-Assistant** from the Start menu. The installer runs per user and offers a desktop shortcut.
-- **Ubuntu amd64:** install the DEB with `sudo apt install ./PyMOL-AI-Assistant-0.4.0-Ubuntu-amd64.deb`, then launch it from the applications menu.
+- **Ubuntu amd64:** install the DEB with `sudo apt install ./PyMOL-AI-Assistant-0.5.0-Ubuntu-amd64.deb`, then launch it from the applications menu.
 
 Python, Conda, Rust, and Codex are not required by installed apps. Native graphics drivers with OpenGL 2.1 or newer and normal desktop OS libraries remain required. Windows CI registers a pinned Mesa software driver on its disposable test runner; this driver is never included in the installer. The existing `pymol` Terminal shortcut on the development Mac is unaffected.
 
@@ -43,7 +51,7 @@ The assistant panel's initial width is 238 logical pixels, 30% narrower than the
 
 Normal PyMOL tools work offline. Settings, saved API credentials, ChatGPT sessions, launch logs, conversation history and checkpoints live in `~/Library/Application Support/PyMOL AI-Assistant`, on macOS, `%LOCALAPPDATA%/PyMOL AI-Assistant` on Windows, or `$XDG_CONFIG_HOME/pymol-ai-assistant` (default `~/.config/pymol-ai-assistant`) on Linux, outside documents and exports. Credential files are restricted to the current user; they are not encrypted by this initial file-based helper. Disconnect retains saved API settings; Forget removes them. ChatGPT sign-out attempts revocation and reports an unconfirmed revocation.
 
-The app ignores other PyMOL startup scripts/plugins at launch. Its standard PyMOL menus remain available for molecular workflows. Native Apple Silicon, Intel Mac, Windows x64, and Ubuntu amd64 builds have passed their frozen GUI and Draw/Ray regression tests. Windows and Ubuntu installers are also checked by installing the package and exercising the installed Draw/Ray popup. Developer ID signing/notarization and validation on other Macs remain release work. A local ad-hoc signature does not constitute Apple notarization.
+The app ignores other PyMOL startup scripts/plugins at launch. Its standard PyMOL menus remain available for molecular workflows. The native workflow gates installer creation on frozen GUI, Draw/Ray, graphics menu/tooltip and AI integration checks. Windows and Ubuntu installer jobs also install the package and exercise the installed Draw/Ray popup. Developer ID signing/notarization and validation on other Macs remain release work. A local ad-hoc signature does not constitute Apple notarization.
 
 ## Source and build
 

@@ -5,19 +5,24 @@ import sys
 import tempfile
 from pathlib import Path
 
-from . import APP_NAME
+from . import APP_NAME, __version__
+
+
+def is_review_build():
+    return bool(getattr(sys, "frozen", False) and (resources_dir() / "LOCAL_REVIEW").is_file())
 
 
 def profile_dir():
     override = os.environ.get("PYMOL_AI_ASSISTANT_PROFILE")
+    folder = APP_NAME + " Local Review " + __version__ if is_review_build() else APP_NAME
     if override:
         path = Path(override).expanduser().resolve()
     elif sys.platform == "darwin":
-        path = Path.home() / "Library/Application Support" / APP_NAME
+        path = Path.home() / "Library/Application Support" / folder
     elif sys.platform == "win32":
-        path = Path(os.environ.get("LOCALAPPDATA", Path.home())) / APP_NAME
+        path = Path(os.environ.get("LOCALAPPDATA", Path.home())) / folder
     else:
-        path = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "pymol-ai-assistant"
+        path = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / ("pymol-ai-assistant-review-" + __version__ if is_review_build() else "pymol-ai-assistant")
     path.mkdir(parents=True, exist_ok=True, mode=0o700)
     if os.name == "posix":
         path.chmod(0o700)

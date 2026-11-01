@@ -9,7 +9,7 @@ from pymol.Qt import QtCore, QtGui, QtWidgets
 
 from . import APP_NAME, __version__
 from .bridge import AiBridge
-from .config import profile_dir, write_json, resources_dir
+from .config import profile_dir, write_json, resources_dir, is_review_build
 from .tools import MolecularTools
 from .agent import AssistantAgent
 
@@ -409,7 +409,7 @@ def install(window):
     window.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
     window.resize(1320, 850)
     window.resizeDocks([dock], [ASSISTANT_PANEL_WIDTH], QtCore.Qt.Horizontal)
-    window.setWindowTitle(APP_NAME + " — Open-Source PyMOL " + window.cmd.get_version()[0])
+    window.setWindowTitle(APP_NAME + (" — Local review " + __version__ if is_review_build() else "") + " — Open-Source PyMOL " + window.cmd.get_version()[0])
     application = QtWidgets.QApplication.instance()
     application.setApplicationName(APP_NAME)
     application.setApplicationDisplayName(APP_NAME)
@@ -430,4 +430,6 @@ def install(window):
     menu.addAction("About this standalone package…", lambda: QtWidgets.QMessageBox.about(window, APP_NAME,
         APP_NAME + " " + __version__ + "\n\nUnofficial standalone package based on official Open-Source PyMOL.\nPyMOL is a trademark of Schrödinger, LLC. This package is independently prepared and is not endorsed by Schrödinger.\n\nAI connection components adapted from RDataCraft and PlasmidCraft.\nApplication integration: GPL-3.0-or-later. See bundled licenses and source.\n\nLive provider/account access is not verified by the offline tests."))
     window.ai_assistant = dock
+    from .graphics_ui import GraphicsMenu
+    window.graphics_ui = GraphicsMenu(window, dock)
     return dock

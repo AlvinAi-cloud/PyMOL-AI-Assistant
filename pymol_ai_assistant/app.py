@@ -8,7 +8,7 @@ import traceback
 from pathlib import Path
 
 from . import APP_NAME, __version__
-from .config import profile_dir, resources_dir, write_json
+from .config import is_review_build, profile_dir, resources_dir, write_json
 
 
 _DLL_DIRECTORY_HANDLES = []
@@ -193,7 +193,7 @@ def main():
                 startup_note("Installed assistant panel")
                 if test_directory:
                     run_gui_self_test(self, test_directory)
-                elif getattr(sys, "frozen", False) and not os.environ.get("PYMOL_AI_SKIP_SETUP"):
+                elif getattr(sys, "frozen", False) and not os.environ.get("PYMOL_AI_SKIP_SETUP") and not is_review_build():
                     from .associations import needs_setup, show_file_types
                     if needs_setup():
                         QtCore.QTimer.singleShot(600, lambda: show_file_types(self, first_launch=True))

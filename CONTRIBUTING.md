@@ -10,7 +10,7 @@ Native builds are required. The Actions workflow builds Apple Silicon (macos-15)
 4. Run `python scripts/test_frozen.py --work .build/native`. On Ubuntu use `LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a` before this command when no display is available.
 5. Run `python scripts/package_native.py --work .build/native --output artifacts`.
 
-Version 0.4.0 provides native installers for all four targets. The development Mac retains its working Intel 0.3.1 installation. Apple signing/notarization and Windows Authenticode signing need separate certificates. Unsigned builds may trigger OS download warnings. Do not call an artifact tested merely because its build succeeded: the frozen GUI and real Draw/Ray popup tests must pass on that platform.
+Version 0.5.0 targets native installers for all four platforms. Frozen GUI checks cover Draw/Ray, AI vision/sequence tools, six graphics presets, independent graphics options, visible tooltip help and AI-controlled transparent PNG export. A LOCAL_REVIEW marker is forbidden in public installers. Apple signing/notarization and Windows Authenticode signing need separate certificates. Unsigned builds may trigger OS download warnings. Do not call an artifact tested merely because its build succeeded: the frozen GUI and real Draw/Ray popup tests must pass on that platform.
 
 Mac file types use LaunchServices. Windows registers the app for the selected types and opens Windows Settings for user confirmation. Ubuntu installs a desktop entry, MIME definitions, document icons, and sets only file types explicitly chosen through the app. The DEB never changes user defaults in an administrator install hook.
 

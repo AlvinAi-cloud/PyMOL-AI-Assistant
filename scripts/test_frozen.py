@@ -24,6 +24,8 @@ def main():
         from pymol_ai_assistant import __version__
         info = plistlib.loads((bundle / "Contents/Info.plist").read_bytes())
         assert info["CFBundleShortVersionString"] == __version__, "Wrong frozen app version for this source"
+    resources = bundle / "Contents/Resources" if sys.platform == "darwin" else bundle
+    assert not (resources / "LOCAL_REVIEW").exists(), "Release build contains a local-review marker"
     environment = dict(os.environ, PYMOL_AI_SKIP_SETUP="1", PYMOL_QA_EXPECT_ARCH=platform.machine())
     # No conda DLL/Qt paths inherited at runtime. Use only the frozen app.
     for name in ["PYTHONPATH", "PYTHONHOME", "QT_PLUGIN_PATH", "QT_QPA_PLATFORM_PLUGIN_PATH"]:
@@ -37,7 +39,7 @@ def main():
         for name in ["QT_OPENGL", "QT_OPENGL_DLL"]:
             if name in os.environ:
                 environment[name] = os.environ[name]
-        for script, folder, setting in [("qa_draw_ray_popup.py", "popup", "PYMOL_POPUP_QA"), ("qa_gui_agent.py", "agent", "PYMOL_AI_QA_OUTPUT")]:
+        for script, folder, setting in [("qa_draw_ray_popup.py", "popup", "PYMOL_POPUP_QA"), ("qa_gui_agent.py", "agent", "PYMOL_AI_QA_OUTPUT"), ("qa_graphics.py", "graphics", "PYMOL_GRAPHICS_QA")]:
             output = work / ("qa-" + folder)
             output.mkdir(exist_ok=True)
             result = output / "result.json"

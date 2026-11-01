@@ -8,10 +8,14 @@ from pathlib import Path
 
 from .config import profile_dir, write_json
 from .commands import NativeCommands, CommandCancelled
+from .graphics import GraphicsControls
 
 NAME = re.compile(r"[A-Za-z][A-Za-z0-9_]{0,47}\Z")
 REPRESENTATIONS = {"cartoon", "sticks", "spheres", "surface", "ribbon", "lines", "nonbonded", "mesh", "dots"}
 FIELDS = {
+    "graphics_preset": {"operation", "preset"},
+    "graphics_options": {"operation", "options"},
+    "graphics_reset": {"operation"},
     "inspect_view": {"operation", "target"},
     "get_sequence": {"operation", "selection"},
     "command": {"operation", "command"},
@@ -38,7 +42,18 @@ Inspect images and extract sequences only when helpful for the user task.
 Do not invent loaded structures, measurements, structural biology results or scientific references.
 If a structure or atom is absent, explain what the user should load or select.
 Return one JSON object: {"message":"your explanation", "actions":[...]}. Use an empty actions list for answers.
-Actions execute automatically. Prefer the general PyMOL command-line action:
+Actions execute automatically.
+For graphics styling, use the built-in controls rather than inventing preset command recipes:
+{"operation":"graphics_preset","preset":"soft"}
+Preset IDs: simple, soft, full, flat, publication, illustration.
+{"operation":"graphics_options","options":{"shadows":false,"silhouettes":true,"background":"transparent","material":"matte","depth_cue":false}}
+Options may contain any nonempty subset of those fields. Background is white, black or transparent; material is matte or glossy; other options are booleans.
+{"operation":"graphics_reset"} resets rendering to Simple and white without changing orientation, representations or atom colors.
+All presets preserve the camera, representations and molecular colors. Publication sets a white background.
+Apply a preset first, then independent options. scene.graphics reports actual settings and available choices, including changes made manually.
+Shadows and silhouettes are visible in Ray renders. Transparent backgrounds are exported in PNG, while the interactive viewport stays white.
+If the user requests a rendered preview or export, use the native ray/png commands, then inspect results. Do not claim an interactive screenshot contains Ray-only effects before rendering.
+Prefer the general PyMOL command-line action for other molecular operations:
 {"operation":"command","command":"hide everything, all; show cartoon, polymer; color marine, chain A"}
 Multiple commands may be separated by semicolons or newlines. Use exact command names from scene.commandLine.availableCommands.
 The app runs the real PyMOL interpreter and sends actual console output, return values and the updated scene back to you.
@@ -137,6 +152,7 @@ class MolecularTools:
         self._turn_checkpoint = None
         self.cancelled = threading.Event()
         self.native = NativeCommands(cmd)
+        self.graphics = GraphicsControls(cmd)
         self.last_execution = {}
 
     def begin_turn(self):
@@ -159,6 +175,7 @@ class MolecularTools:
             result["objects"].append(entry)
         if "sele" in self.cmd.get_names("selections"):
             result["selectedAtoms"] = self.cmd.count_atoms("sele")
+        result["graphics"] = self.graphics.context()
         return result
 
     def validate(self, actions):
@@ -170,6 +187,17 @@ class MolecularTools:
         for original in actions:
             action = dict(original)
             op = action["operation"]
+            if op == "graphics_preset":
+                self.graphics.validate_preset(action["preset"])
+                result.append(action)
+                continue
+            if op == "graphics_options":
+                self.graphics.validate_options(action["options"])
+                result.append(action)
+                continue
+            if op == "graphics_reset":
+                result.append(action)
+                continue
             if op == "inspect_view":
                 if action["target"] not in {"window", "viewport"}:
                     raise ValueError("Choose window or viewport for inspection.")
@@ -258,7 +286,16 @@ class MolecularTools:
                 if self.cancelled.is_set():
                     raise CommandCancelled("Stopped. Commands already completed remain applied.")
                 op = action["operation"]
-                if op == "command":
+                if op in {"graphics_preset", "graphics_options", "graphics_reset"}:
+                    if op == "graphics_preset":
+                        value = self.graphics.apply_preset(action["preset"])
+                    elif op == "graphics_options":
+                        value = self.graphics.set_options(action["options"])
+                    else:
+                        value = self.graphics.reset()
+                    records.append({"command": op + " " + json.dumps({k:v for k,v in action.items() if k != "operation"}), "ok": True, "result": value})
+                    outputs.append(json.dumps(value))
+                elif op == "command":
                     self.native.last_results = []
                     try:
                         native_results = self.native.execute(self.native.prepare(action["command"]), self.cancelled)

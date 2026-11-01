@@ -11,7 +11,7 @@ def write_native_plist(template, destination, architecture):
     # arm64 dependencies cannot run inside the launcher's Intel slice.
     if architecture == "arm64":
         info["LSRequiresNativeExecution"] = True
-        info["CFBundleVersion"] = "6"
+        info["CFBundleVersion"] = str(max(6, int(info.get("CFBundleVersion", "0"))))
     else:
         info.pop("LSRequiresNativeExecution", None)
     destination = Path(destination)

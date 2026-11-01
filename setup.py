@@ -52,5 +52,7 @@ options = {
 if sys.platform != "darwin":
     options.pop("bdist_mac")
 
-setup(name="pymol-ai-assistant", version="0.4.0", description="Unofficial standalone Open-Source PyMOL with an integrated AI assistant", options=options,
+from pymol_ai_assistant import __version__
+
+setup(name="pymol-ai-assistant", version=__version__, description="Unofficial standalone Open-Source PyMOL with an integrated AI assistant", options=options,
       executables=[Executable(str(ROOT / "launch.py"), base="gui", target_name="PyMOL AI-Assistant.exe" if os.name == "nt" else "PyMOL AI-Assistant", icon=str(ROOT / "icons/PyMOL.ico") if os.name == "nt" else None, shortcut_name="PyMOL AI-Assistant", shortcut_dir="ProgramMenuFolder")])
