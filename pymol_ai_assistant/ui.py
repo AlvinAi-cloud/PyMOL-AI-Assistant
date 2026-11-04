@@ -427,8 +427,10 @@ def install(window):
     menu.addAction("File Types…", lambda: show_file_types(window))
     menu.addSeparator()
     menu.addAction("Load bundled example", dock.example)
+    from .updates_ui import install_update_action
+    install_update_action(window, menu)
     menu.addAction("About this standalone package…", lambda: QtWidgets.QMessageBox.about(window, APP_NAME,
-        APP_NAME + " " + __version__ + "\n\nUnofficial standalone package based on official Open-Source PyMOL.\nPyMOL is a trademark of Schrödinger, LLC. This package is independently prepared and is not endorsed by Schrödinger.\n\nAI connection components adapted from RDataCraft and PlasmidCraft.\nApplication integration: GPL-3.0-or-later. See bundled licenses and source.\n\nLive provider/account access is not verified by the offline tests."))
+        APP_NAME + " " + __version__ + "\n\nUnofficial standalone package based on official Open-Source PyMOL.\nPyMOL is a trademark of Schrödinger, LLC. This package is independently prepared and is not endorsed by Schrödinger."))
     window.ai_assistant = dock
     from .graphics_ui import GraphicsMenu
     window.graphics_ui = GraphicsMenu(window, dock)

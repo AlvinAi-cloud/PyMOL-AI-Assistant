@@ -1,6 +1,6 @@
 # PyMOL AI-Assistant standalone package
 
-Native standalone package: 0.5.0. This independently prepared package combines official Open-Source PyMOL 3.1.0 with a docked AI assistant. It is not a Schrödinger distribution or endorsement. PyMOL is a trademark of Schrödinger, LLC.
+Native standalone package: 0.6.0. This independently prepared package combines official Open-Source PyMOL 3.1.0 with a docked AI assistant. It is not a Schrödinger distribution or endorsement. PyMOL is a trademark of Schrödinger, LLC.
 
 ## Graphics presets
 
@@ -14,14 +14,16 @@ The AI can use the same named presets and independent options through structured
 
 These standalone installers also provide a convenient way to set up **free, open-source PyMOL 3.1.0** as a normal desktop app. Python and Conda are not required. You can use PyMOL’s standard molecular visualization tools offline without connecting an AI account. AI features are optional; charges from your chosen AI provider may apply.
 
-| Platform | Version 0.5.0 download |
+| Platform | Version 0.6.0 download |
 | --- | --- |
-| Mac — Apple Silicon (M-series) | [Download arm64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/PyMOL-AI-Assistant-0.5.0-macOS-arm64.dmg) |
-| Mac — Intel | [Download x86_64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/PyMOL-AI-Assistant-0.5.0-macOS-x86_64.dmg) |
-| Windows — x64 | [Download Setup EXE](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/PyMOL-AI-Assistant-0.5.0-Windows-x64-Setup.exe) |
-| Ubuntu — amd64 (built on 22.04) | [Download DEB](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/PyMOL-AI-Assistant-0.5.0-Ubuntu-amd64.deb) |
+| Mac — Apple Silicon (M-series) | [Download arm64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/PyMOL-AI-Assistant-0.6.0-macOS-arm64.dmg) |
+| Mac — Intel | [Download x86_64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/PyMOL-AI-Assistant-0.6.0-macOS-x86_64.dmg) |
+| Windows — x64 | [Download Setup EXE](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/PyMOL-AI-Assistant-0.6.0-Windows-x64-Setup.exe) |
+| Ubuntu — amd64 (built on 22.04) | [Download DEB](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/PyMOL-AI-Assistant-0.6.0-Ubuntu-amd64.deb) |
 
-[All release files and source](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/tag/v0.5.0) · [SHA-256 checksums](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.5.0/SHA256SUMS-0.5.0.txt)
+[All release files and source](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/tag/v0.6.0) · [SHA-256 checksums](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/SHA256SUMS-0.6.0.txt)
+
+**Updates:** choose **Help → Check for Update…** or **AI Assistant → Check for Update…**. The app checks the latest stable GitHub release and offers the installer matching your operating system and architecture. Download it in your browser, close the app after saving your work, and run the installer. Update checks run only when requested and do not require an AI account.
 
 Mac builds are ad-hoc signed and are not Apple-notarized; the Windows installer is unsigned. Your OS may show a download warning. The installers passed native build and GUI checks.
 
@@ -31,7 +33,7 @@ The Apple Silicon app selects arm64 and requires native execution. Mac architect
 
 - **macOS:** open the DMG for your processor, drag **PyMOL AI-Assistant.app** into Applications, and launch that copy.
 - **Windows x64:** run **Setup.exe** and launch **PyMOL AI-Assistant** from the Start menu. The installer runs per user and offers a desktop shortcut.
-- **Ubuntu amd64:** install the DEB with `sudo apt install ./PyMOL-AI-Assistant-0.5.0-Ubuntu-amd64.deb`, then launch it from the applications menu.
+- **Ubuntu amd64:** install the DEB with `sudo apt install ./PyMOL-AI-Assistant-0.6.0-Ubuntu-amd64.deb`, then launch it from the applications menu.
 
 Python, Conda, Rust, and Codex are not required by installed apps. Native graphics drivers with OpenGL 2.1 or newer and normal desktop OS libraries remain required. Windows CI registers a pinned Mesa software driver on its disposable test runner; this driver is never included in the installer. The existing `pymol` Terminal shortcut on the development Mac is unaffected.
 
