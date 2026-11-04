@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import pymol2
 
@@ -54,6 +55,23 @@ class CommandsTest(unittest.TestCase):
         restarted = MolecularTools(self.cmd, self.temporary.name)
         restarted.apply([{"operation": "restore_checkpoint"}])
         self.assertEqual(self.cmd.count_atoms("original"), 7)
+
+    def test_equal_clock_ticks_keep_distinct_ordered_checkpoints_after_pruning(self):
+        with patch("pymol_ai_assistant.tools.datetime") as clock:
+            clock.now.return_value.strftime.return_value = "20261104T180000000000Z"
+            self.command("fragment gly, first")
+            self.command("fragment gly, second")
+            self.command("fragment gly, third")
+            self.command("fragment gly, fourth")
+            self.command("fragment gly, fifth")
+        checkpoints = sorted((self.tools.directory / "checkpoints").glob("*.pse"))
+        self.assertEqual(len(checkpoints), 3)
+        self.assertEqual(self.tools.last_checkpoint, checkpoints[-1])
+        restarted = MolecularTools(self.cmd, self.temporary.name)
+        for count in [4, 3, 2]:
+            self.assertTrue(restarted.undo())
+            self.assertEqual(len(self.cmd.get_names("objects")), count)
+        self.assertFalse(restarted.undo())
 
     def test_context_includes_maps_for_broader_command_control(self):
         self.command("fragment gly, example; map_new density, gaussian, 1.0, example")

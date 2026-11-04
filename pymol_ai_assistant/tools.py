@@ -349,12 +349,26 @@ class MolecularTools:
         folder = self.directory / "checkpoints"
         folder.mkdir(parents=True, exist_ok=True, mode=0o700)
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-        checkpoint = folder / (stamp + ".pse")
-        self.cmd.save(str(checkpoint))
-        if not checkpoint.is_file():
-            raise ValueError("Could not save a checkpoint. No actions were applied.")
-        if checkpoint.exists():
+        # Windows clocks can give adjacent operations the same timestamp. Keep
+        # names unique and sorted in creation order, including after pruning.
+        suffixes = [path.stem[len(stamp) + 1:] for path in folder.glob(stamp + "_*.pse")]
+        index = 1 + max((int(value) for value in suffixes if value.isdigit()), default=-1)
+        while True:
+            checkpoint = folder / (stamp + "_%020d.pse" % index)
+            try:
+                with checkpoint.open("xb"):
+                    pass
+                break
+            except FileExistsError:
+                index += 1
+        try:
             checkpoint.chmod(0o600)
+            self.cmd.save(str(checkpoint))
+            if not checkpoint.is_file() or checkpoint.stat().st_size == 0:
+                raise ValueError("Could not save a checkpoint. No actions were applied.")
+        except Exception:
+            checkpoint.unlink(missing_ok=True)
+            raise
         return checkpoint
 
     def undo(self):
