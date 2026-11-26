@@ -41,6 +41,14 @@ def helper_path():
     return path
 
 
+def ca_bundle_path():
+    """Use a stable certificate path even when the build environment patches certifi."""
+    if getattr(sys, "frozen", False):
+        return resources_dir() / "cacert.pem"
+    from certifi import where
+    return Path(where())
+
+
 def write_json(path, value):
     """Atomic, private settings and local history, outside exported documents."""
     path = Path(path)

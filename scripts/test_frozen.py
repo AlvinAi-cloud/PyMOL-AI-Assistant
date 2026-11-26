@@ -32,6 +32,7 @@ def main():
         assert info["CFBundleShortVersionString"] == __version__, "Wrong frozen app version for this source"
     resources = bundle / "Contents/Resources" if sys.platform == "darwin" else bundle
     assert (resources / "LOCAL_REVIEW").is_file() == args.local_review, "Unexpected local-review marker"
+    assert (resources / "cacert.pem").is_file(), "The frozen app is missing its TLS certificate bundle"
     environment = dict(os.environ, PYMOL_AI_SKIP_SETUP="1", PYMOL_QA_EXPECT_ARCH=platform.machine())
     if args.local_review:
         environment["PYMOL_GRAPHICS_EXPECT_REVIEW"] = "1"

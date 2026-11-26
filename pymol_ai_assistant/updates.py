@@ -9,6 +9,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from . import __version__
+from .config import ca_bundle_path
 
 REPOSITORY_URL = "https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant"
 RELEASES_URL = REPOSITORY_URL + "/releases/latest"
@@ -71,12 +72,11 @@ def parse_release(payload, current=__version__, system=None, machine=None):
 
 def fetch_latest(endpoint=API_URL):
     """One anonymous, bounded HTTPS request. No account or molecular data is sent."""
-    import certifi
     request = Request(endpoint, headers={"Accept": "application/vnd.github+json",
                       "User-Agent": "PyMOL-AI-Assistant/" + __version__,
                       "X-GitHub-Api-Version": "2022-11-28"})
     try:
-        context = ssl.create_default_context(cafile=certifi.where())
+        context = ssl.create_default_context(cafile=str(ca_bundle_path()))
         with urlopen(request, timeout=12, context=context) as response:
             body = response.read(MAX_RESPONSE_BYTES + 1)
         if len(body) > MAX_RESPONSE_BYTES:

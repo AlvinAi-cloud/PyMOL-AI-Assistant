@@ -98,7 +98,7 @@ def poll():
         assert d.retry.isEnabled()
         text = d.status.text()
         case = cases[case_index]
-        assert len(requests) == case_index + 1, "Duplicate update request"
+        assert len(requests) == case_index + 1, f"Wrong number of update requests for {case}. Dialog status: {text}"
         if case == "newer":
             assert d.download.isVisible() and next_version in text
             assert d.download.width() >= d.download.fontMetrics().horizontalAdvance(d.download.text()) + 30

@@ -8,7 +8,7 @@ import traceback
 from pathlib import Path
 
 from . import APP_NAME, __version__
-from .config import is_review_build, profile_dir, resources_dir, write_json
+from .config import ca_bundle_path, is_review_build, profile_dir, resources_dir, write_json
 
 
 _DLL_DIRECTORY_HANDLES = []
@@ -42,9 +42,9 @@ def prepare_environment():
         if plugins.is_dir():
             os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(plugins / "platforms")
     # The frozen package carries its own trusted CA bundle.
-    import certifi
-    os.environ.setdefault("SSL_CERT_FILE", certifi.where())
-    os.environ.setdefault("REQUESTS_CA_BUNDLE", certifi.where())
+    ca_bundle = str(ca_bundle_path())
+    os.environ.setdefault("SSL_CERT_FILE", ca_bundle)
+    os.environ.setdefault("REQUESTS_CA_BUNDLE", ca_bundle)
 
 
 def run_gui_self_test(window, directory):

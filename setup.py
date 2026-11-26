@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from cx_Freeze import Executable, setup
+from certifi import where as certifi_bundle
 
 ROOT = Path(__file__).resolve().parent
 LOCAL_REVIEW = os.environ.get("PYMOL_AI_LOCAL_REVIEW") == "1"
@@ -25,7 +26,8 @@ for form in forms.glob("*.ui"):
 build_base = os.environ.get("PYMOL_AI_BUILD_DIR", str(ROOT / "build"))
 includes = ["pymol", "pymol2", "pmg_qt", "chempy", "pymol_ai_assistant", "numpy", "certifi", "xml", "gzip", "sqlite3", "PyQt5.uic"]
 native_plist = ROOT / "Info.plist"
-readme_images = [(str(ROOT / "artwork/readme"), "artwork/readme")]
+portable_data = [(str(ROOT / "artwork/readme"), "artwork/readme"),
+                 (certifi_bundle(), "cacert.pem")]
 if sys.platform == "darwin":
     from scripts.macos_plist import write_native_plist
     native_plist = write_native_plist(native_plist, Path(build_base) / "native-Info.plist", platform.machine())
@@ -45,7 +47,7 @@ options = {
         "packages": includes,
         "includes": ["PyQt5.QtCore", "PyQt5.QtGui", "PyQt5.QtWidgets", "PyQt5.QtOpenGL", "PyQt5.QtSvg", "PyQt5.sip"],
         "excludes": ["tkinter", "PyQt6", "PySide2", "PySide6", "PyQt5.QtSql", "PyQt5.QtMultimedia", "PyQt5.QtBluetooth", "PyQt5.QtNfc", "PyQt5.QtTextToSpeech", "PyQt5.QtSensors", "PyQt5.QtSerialPort", "matplotlib", "scipy", "pandas", "pytest", "pip", "setuptools", "test", "unittest"],
-        "include_files": [] if sys.platform == "darwin" else [(str(PYMOL_DATA), "pymol-data"), (str(ROOT / "ai"), "ai"), (str(ROOT / "licenses"), "licenses"), (str(ROOT / "LICENSE"), "LICENSE"), (str(ROOT / "README.md"), "README.md")] + readme_images + [(str(ROOT / "icons" / (name + ext)), "icons/" + name + ext) for name in ["PyMOL", "PDB", "CIF", "PSE", "MOL", "MOL2"] for ext in [".png", ".ico"]],
+        "include_files": [] if sys.platform == "darwin" else [(str(PYMOL_DATA), "pymol-data"), (str(ROOT / "ai"), "ai"), (str(ROOT / "licenses"), "licenses"), (str(ROOT / "LICENSE"), "LICENSE"), (str(ROOT / "README.md"), "README.md")] + portable_data + [(str(ROOT / "icons" / (name + ext)), "icons/" + name + ext) for name in ["PyMOL", "PDB", "CIF", "PSE", "MOL", "MOL2"] for ext in [".png", ".ico"]],
         "include_msvcr": os.name == "nt",
         "bin_excludes": ["pyqt5qmlplugin.dll", "pyqt5.dll"] if os.name == "nt" else [],
         "zip_include_packages": [],
@@ -56,7 +58,7 @@ options = {
         "bundle_name": "PyMOL AI-Assistant Review" if LOCAL_REVIEW else "PyMOL AI-Assistant",
         "iconfile": str(ROOT / "icons/PyMOL.icns"),
         "custom_info_plist": str(native_plist),
-        "include_resources": [(str(PYMOL_DATA), "pymol-data"), (str(ROOT / "ai"), "ai"), (str(ROOT / "licenses"), "licenses"), (str(ROOT / "LICENSE"), "LICENSE"), (str(ROOT / "README.md"), "README.md")] + readme_images + [(str(ROOT / ("icons/" + name + ".icns")), name + ".icns") for name in ["PDB", "CIF", "PSE", "MOL", "MOL2"]] + ([(str(review_marker), "LOCAL_REVIEW")] if LOCAL_REVIEW else []),
+        "include_resources": [(str(PYMOL_DATA), "pymol-data"), (str(ROOT / "ai"), "ai"), (str(ROOT / "licenses"), "licenses"), (str(ROOT / "LICENSE"), "LICENSE"), (str(ROOT / "README.md"), "README.md")] + portable_data + [(str(ROOT / ("icons/" + name + ".icns")), name + ".icns") for name in ["PDB", "CIF", "PSE", "MOL", "MOL2"]] + ([(str(review_marker), "LOCAL_REVIEW")] if LOCAL_REVIEW else []),
         "codesign_identity": "-",
         "codesign_deep": True,
     },
