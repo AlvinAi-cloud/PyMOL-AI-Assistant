@@ -1,7 +1,9 @@
 """One graphics menu shared by the menu bar and native quick-button area."""
-from pymol.Qt import QtCore, QtGui, QtWidgets
-from .graphics import PRESETS, RENDER_NOTE, HELP
 import textwrap
+
+from pymol.Qt import QtCore, QtGui, QtWidgets
+from .graphics import PRESETS, PALETTES, RENDER_NOTE, HELP
+from .focus import FOCUS_HELP, default_focus_selection
 
 
 def set_help(action, text):
@@ -53,8 +55,8 @@ class GraphicsMenu:
         self.menu = HelpMenu('Presets', window)
         window.menuBar().addMenu(self.menu)
         self.menu.setObjectName('graphics_presets_menu')
-        self.menu.setToolTipsVisible(True)
-        self.presets, self.toggles, self.choices = {}, {}, {}
+        self.presets, self.toggles, self.choices, self.palettes = {}, {}, {}, {}
+        self.rendering_submenus = []
         for key, (label, description, _settings) in PRESETS.items():
             action = self.menu.addAction(label)
             action.setObjectName('graphics_preset_' + key)
@@ -62,10 +64,16 @@ class GraphicsMenu:
             action.triggered.connect(lambda _checked=False, key=key: self.apply({'operation': 'graphics_preset', 'preset': key}))
             self.presets[key] = action
         self.menu.addSeparator()
+        self.focus_action = self.menu.addAction('Transparent protein + highlights')
+        self.focus_action.setObjectName('graphics_focus_transparent_protein')
+        set_help(self.focus_action, FOCUS_HELP)
+        self.focus_action.triggered.connect(self.focus)
+        self.menu.addSeparator()
         for key, label, tip in [
             ('shadows', 'Shadows (Ray)', HELP['shadows']),
             ('silhouettes', 'Silhouettes (Ray)', HELP['silhouettes']),
-            ('depth_cue', 'Depth cue', HELP['depth_cue'])]:
+            ('depth_cue', 'Depth cue', HELP['depth_cue']),
+            ('surface_depth', 'Surface depth (AO)', HELP['surface_depth'])]:
             action = self.menu.addAction(label)
             action.setCheckable(True)
             action.setObjectName('graphics_option_' + key)
@@ -74,10 +82,14 @@ class GraphicsMenu:
             self.toggles[key] = action
         for key, title, entries in [
             ('background', 'Background', [('white','White'),('black','Black'),('transparent','Transparent PNG')]),
-            ('material', 'Material', [('matte','Matte'),('glossy','Glossy')])]:
+            ('material', 'Material', [('matte','Matte'),('glossy','Glossy')]),
+            ('outline_strength', 'Outline strength (Ray)', [('fine','Fine'),('standard','Standard'),('bold','Bold')]),
+            ('outline_color', 'Outline color (Ray)', [('charcoal','Charcoal'),('black','Black'),('gray','Gray')]),
+            ('projection', 'Projection', [('orthographic','Orthographic'),('perspective','Perspective')]),
+            ('quality', 'Render quality (Ray)', [('standard','Standard'),('high','High (slower)')])]:
             submenu = HelpMenu(title, self.menu)
             self.menu.addMenu(submenu)
-            submenu.setToolTipsVisible(True)
+            self.rendering_submenus.append(submenu)
             set_help(submenu.menuAction(), HELP[key])
             group = QtWidgets.QActionGroup(submenu)
             group.setExclusive(True)
@@ -90,6 +102,18 @@ class GraphicsMenu:
                 set_help(action, HELP[key + "_" + value])
                 action.triggered.connect(lambda _checked=False, key=key, value=value: self.options({key:value}))
                 self.choices[key][value] = action
+        palette_menu = HelpMenu('Polymer colors', self.menu)
+        palette_menu.setObjectName('graphics_polymer_colors_menu')
+        self.menu.addMenu(palette_menu)
+        self.rendering_submenus.append(palette_menu)
+        set_help(palette_menu.menuAction(), HELP['palettes'])
+        for key, (label, description) in PALETTES.items():
+            action = palette_menu.addAction(label)
+            action.setObjectName('graphics_palette_' + key)
+            set_help(action, description)
+            action.triggered.connect(lambda _checked=False, key=key: self.apply(
+                {'operation':'graphics_palette', 'palette':key, 'selection':'polymer'}))
+            self.palettes[key] = action
         self.menu.addSeparator()
         self.preview_action = self.menu.addAction('Render preview (Ray)')
         self.preview_action.setObjectName('graphics_render_preview')
@@ -98,7 +122,11 @@ class GraphicsMenu:
         reset = self.menu.addAction('Reset graphics')
         set_help(reset, HELP['reset'])
         reset.triggered.connect(lambda: self.apply({'operation':'graphics_reset'}))
+        self.edit_actions = [*self.presets.values(), self.focus_action, *self.toggles.values(),
+                             self.preview_action, reset]
         self.menu.addSeparator()
+        from .help_ui import install_help_menu
+        install_help_menu(window, self.menu, 'presets')
         note = self.menu.addAction('Shadows and outlines: use Draw/Ray')
         note.setEnabled(False)
         self.menu.aboutToShow.connect(self.refresh)
@@ -112,8 +140,10 @@ class GraphicsMenu:
         dock.agent.busy_changed.connect(self.set_busy)
 
     def set_busy(self, busy):
-        self.menu.setEnabled(not busy)
-        self.button.setEnabled(not busy)
+        for action in self.edit_actions:
+            action.setEnabled(not busy)
+        for submenu in self.rendering_submenus:
+            submenu.setEnabled(not busy)
 
     def install_shortcut(self):
         # Wrap the Builder/Properties row without changing its parent layout's
@@ -149,10 +179,20 @@ class GraphicsMenu:
     def options(self, values):
         self.apply({'operation':'graphics_options','options':values})
 
+    def focus(self):
+        self.apply({'operation': 'graphics_focus', 'selection': default_focus_selection(self.window.cmd)})
+
     def apply(self, action):
         try:
             self.dock.tools.apply([action])
-            label = PRESETS[action['preset']][0] if action['operation'] == 'graphics_preset' else 'Graphics updated'
+            if action['operation'] == 'graphics_preset':
+                label = PRESETS[action['preset']][0]
+            elif action['operation'] == 'graphics_palette':
+                label = PALETTES[action['palette']][0] + ' applied to polymers; nonpolymer colors retained'
+            elif action['operation'] == 'graphics_focus':
+                label = 'Protein 70% transparent; ligands and selected residues shown as opaque sticks'
+            else:
+                label = 'Graphics updated'
             self.dock.set_status(label + '. ' + RENDER_NOTE)
             self.refresh()
         except Exception as error:

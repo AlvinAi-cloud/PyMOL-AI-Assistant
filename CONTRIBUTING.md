@@ -10,7 +10,9 @@ Native builds are required. The Actions workflow builds Apple Silicon (macos-15)
 4. Run `python scripts/test_frozen.py --work .build/native`. On Ubuntu use `LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a` before this command when no display is available.
 5. Run `python scripts/package_native.py --work .build/native --output artifacts`.
 
-Version 0.6.0 targets native installers for all four platforms. Frozen GUI checks cover nonblocking update checks against a local release server, platform-matched downloads, error/retry handling, About text, Draw/Ray, AI vision/sequence tools, six graphics presets, independent graphics options, visible tooltip help and AI-controlled transparent PNG export. A LOCAL_REVIEW marker is forbidden in public installers. Apple signing/notarization and Windows Authenticode signing need separate certificates. Unsigned builds may trigger OS download warnings. Do not call an artifact tested merely because its build succeeded: the frozen GUI and real Draw/Ray popup tests must pass on that platform.
+Frozen GUI checks cover update checks, About text, Draw/Ray, AI vision and sequence tools, lighting presets, graphics options, transparency focus, offline Help, and transparent PNG export. A LOCAL_REVIEW marker is forbidden in public installers. Apple notarization and Windows Authenticode signing require separate certificates.
+
+For a local Mac review app, set `PYMOL_AI_LOCAL_REVIEW=1` and set `PYMOL_AI_BUILD_DIR` to the absolute `freeze` directory under your chosen build work directory. Run `python setup.py bdist_mac`, then run `python scripts/test_frozen.py --work <work-directory> --local-review`. The review app uses its own bundle ID and profile.
 
 Mac file types use LaunchServices. Windows registers the app for the selected types and opens Windows Settings for user confirmation. Ubuntu installs a desktop entry, MIME definitions, document icons, and sets only file types explicitly chosen through the app. The DEB never changes user defaults in an administrator install hook.
 

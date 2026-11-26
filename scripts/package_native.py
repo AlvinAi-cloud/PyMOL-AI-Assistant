@@ -90,6 +90,9 @@ def main():
     work, output = args.work.resolve(), args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     bundle = frozen_bundle(work)
+    resources = bundle / "Contents/Resources" if sys.platform == "darwin" else bundle
+    if (resources / "LOCAL_REVIEW").exists():
+        raise SystemExit("Build a release app before creating a public installer.")
     if sys.platform == "darwin":
         stage = work / "dmg-stage"
         if stage.exists():

@@ -409,7 +409,8 @@ def install(window):
     window.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
     window.resize(1320, 850)
     window.resizeDocks([dock], [ASSISTANT_PANEL_WIDTH], QtCore.Qt.Horizontal)
-    window.setWindowTitle(APP_NAME + (" — Local review " + __version__ if is_review_build() else "") + " — Open-Source PyMOL " + window.cmd.get_version()[0])
+    review_build = is_review_build()
+    window.setWindowTitle(APP_NAME + (" — Local review " + __version__ if review_build else "") + " — Open-Source PyMOL " + window.cmd.get_version()[0])
     application = QtWidgets.QApplication.instance()
     application.setApplicationName(APP_NAME)
     application.setApplicationDisplayName(APP_NAME)
@@ -423,12 +424,15 @@ def install(window):
     menu = window.menuBar().addMenu("AI Assistant")
     menu.addAction(dock.toggleViewAction())
     menu.addAction("Accounts and Models…", dock.accounts)
-    from .associations import show_file_types
-    menu.addAction("File Types…", lambda: show_file_types(window))
+    if not review_build:
+        from .associations import show_file_types
+        menu.addAction("File Types…", lambda: show_file_types(window))
     menu.addSeparator()
     menu.addAction("Load bundled example", dock.example)
     from .updates_ui import install_update_action
     install_update_action(window, menu)
+    from .help_ui import install_help_menu
+    install_help_menu(window, menu, 'assistant')
     menu.addAction("About this standalone package…", lambda: QtWidgets.QMessageBox.about(window, APP_NAME,
         APP_NAME + " " + __version__ + "\n\nUnofficial standalone package based on official Open-Source PyMOL.\nPyMOL is a trademark of Schrödinger, LLC. This package is independently prepared and is not endorsed by Schrödinger."))
     window.ai_assistant = dock

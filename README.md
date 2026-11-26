@@ -1,27 +1,19 @@
 # PyMOL AI-Assistant standalone package
 
-Native standalone package: 0.6.0. This independently prepared package combines official Open-Source PyMOL 3.1.0 with a docked AI assistant. It is not a Schrödinger distribution or endorsement. PyMOL is a trademark of Schrödinger, LLC.
-
-## Graphics presets
-
-Version 0.5 adds a **Presets** menu and a **Presets** shortcut below Builder/Properties/Rebuild. Six presets are available: Simple, Soft, Full, Flat, Publication, and Illustration. Hover over each preset and option for explanations, suggested uses and Draw/Ray guidance. Independent options control shadows, silhouettes, white/black/transparent backgrounds, matte/glossy material, and depth cueing. **Render preview (Ray)** uses the existing molecular viewport; the normal Draw/Ray and export menus remain available.
-
-Shadows and silhouettes are Ray-render effects. A transparent background exports alpha in PNG while the interactive viewport remains white. Surface ambient occlusion is most noticeable on surfaces; it does not promise ChimeraX's rendering algorithm. All presets preserve the camera, representations and molecular colors. Publication sets a white background; other presets retain the background. Reset graphics resets lighting and white background without restoring previous atom colors. Existing assistant checkpoint recovery can restore a prior scene.
-
-The AI can use the same named presets and independent options through structured graphics tools and sees actual current rendering settings. Choose a preset first, then adjust independent options. Choose **Ray** inside **Draw/Ray**, or use **Render preview (Ray)**, to see shadows and outlines. Gold Illustration was removed because ordinary molecular coloring plus Illustration provides the same flexibility.
+Version **0.7.0** packages official Open-Source PyMOL 3.1.0 with an optional docked AI assistant. This is an independent distribution. PyMOL is a trademark of Schrödinger, LLC.
 
 ## Download installers
 
 These standalone installers also provide a convenient way to set up **free, open-source PyMOL 3.1.0** as a normal desktop app. Python and Conda are not required. You can use PyMOL’s standard molecular visualization tools offline without connecting an AI account. AI features are optional; charges from your chosen AI provider may apply.
 
-| Platform | Version 0.6.0 download |
+| Platform | Version 0.7.0 download |
 | --- | --- |
-| Mac — Apple Silicon (M-series) | [Download arm64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/PyMOL-AI-Assistant-0.6.0-macOS-arm64.dmg) |
-| Mac — Intel | [Download x86_64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/PyMOL-AI-Assistant-0.6.0-macOS-x86_64.dmg) |
-| Windows — x64 | [Download Setup EXE](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/PyMOL-AI-Assistant-0.6.0-Windows-x64-Setup.exe) |
-| Ubuntu — amd64 (built on 22.04) | [Download DEB](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/PyMOL-AI-Assistant-0.6.0-Ubuntu-amd64.deb) |
+| Mac — Apple Silicon (M-series) | [Download arm64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.7.0/PyMOL-AI-Assistant-0.7.0-macOS-arm64.dmg) |
+| Mac — Intel | [Download x86_64 DMG](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.7.0/PyMOL-AI-Assistant-0.7.0-macOS-x86_64.dmg) |
+| Windows — x64 | [Download Setup EXE](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.7.0/PyMOL-AI-Assistant-0.7.0-Windows-x64-Setup.exe) |
+| Ubuntu — amd64 (built on 22.04) | [Download DEB](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.7.0/PyMOL-AI-Assistant-0.7.0-Ubuntu-amd64.deb) |
 
-[All release files and source](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/tag/v0.6.0) · [SHA-256 checksums](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.6.0/SHA256SUMS-0.6.0.txt)
+[All release files and source](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/tag/v0.7.0) · [SHA-256 checksums](https://github.com/AlvinAi-cloud/PyMOL-AI-Assistant/releases/download/v0.7.0/SHA256SUMS-0.7.0.txt)
 
 **Updates:** choose **Help → Check for Update…** or **AI Assistant → Check for Update…**. The app checks the latest stable GitHub release and offers the installer matching your operating system and architecture. Download it in your browser, close the app after saving your work, and run the installer. Update checks run only when requested and do not require an AI account.
 
@@ -29,13 +21,39 @@ Mac builds are ad-hoc signed and are not Apple-notarized; the Windows installer 
 
 The Apple Silicon app selects arm64 and requires native execution. Mac architecture preferences and native execution are checked through Launch Services, as used by Finder.
 
+## Graphics presets
+
+Version 0.7 adds **Paper Cutout** and **Studio** alongside Simple, Soft, Full, Flat, Publication, and Illustration. Use the **Presets** menu or the shortcut below Builder/Properties/Rebuild. The AI assistant can apply the same presets and options.
+
+![PyMOL AI-Assistant window showing the Presets shortcut, molecular viewport, and docked assistant](artwork/readme/application-ui.jpg)
+
+*The bundled example in the desktop app with Paper Cutout lighting and Pastel chains.*
+
+Choose a lighting preset, then adjust shadows, silhouettes, background, material, depth cueing, surface shading, outlines, projection, or render quality. Optional polymer palettes color chains or show residue order. The lighting presets preserve the camera, representations, and molecular colors. **Publication** selects a white background. Choose a preset first and adjust the background afterward for transparent PNG export.
+
+![Eight PyMOL lighting presets on the same structure and camera view](artwork/readme/lighting-presets.png)
+
+*Ray renders of all eight lighting presets using the same camera, colors, and cartoon representation.*
+
+### Surface and ligand examples
+
+![Soft, Paper Cutout, and Studio lighting on a molecular surface with a ligand](artwork/readme/surface-lighting.png)
+
+*Soft emphasizes crevices, Paper Cutout adds contours, and Studio brings out highlights on the same molecular surface.*
+
+![Original cartoon, transparent protein with opaque ligand, and ligand plus selected residues](artwork/readme/ligand-focus.png)
+
+**Transparent protein + highlights** makes the protein 70% transparent and shows ligands and selected residues as opaque sticks. Try it with Soft lighting to see contacts inside the protein.
+
+Choose **Ray** in **Draw/Ray** or select **Render preview (Ray)** to see shadows and outlines. **Presets → Help** explains options, combinations, and export. **AI Assistant → Help** covers setup, example requests, native commands, and scene recovery.
+
 ## Use
 
 - **macOS:** open the DMG for your processor, drag **PyMOL AI-Assistant.app** into Applications, and launch that copy.
 - **Windows x64:** run **Setup.exe** and launch **PyMOL AI-Assistant** from the Start menu. The installer runs per user and offers a desktop shortcut.
-- **Ubuntu amd64:** install the DEB with `sudo apt install ./PyMOL-AI-Assistant-0.6.0-Ubuntu-amd64.deb`, then launch it from the applications menu.
+- **Ubuntu amd64:** install the DEB with `sudo apt install ./PyMOL-AI-Assistant-0.7.0-Ubuntu-amd64.deb`, then launch it from the applications menu.
 
-Python, Conda, Rust, and Codex are not required by installed apps. Native graphics drivers with OpenGL 2.1 or newer and normal desktop OS libraries remain required. Windows CI registers a pinned Mesa software driver on its disposable test runner; this driver is never included in the installer. The existing `pymol` Terminal shortcut on the development Mac is unaffected.
+Python, Conda, Rust, and Codex are not required by installed apps. Native graphics drivers with OpenGL 2.1 or newer and normal desktop OS libraries remain required. Windows CI registers a pinned Mesa software driver on its disposable test runner; this driver is never included in the installer.
 
 On first launch, choose which document types should open here by default: PDB (`.pdb`), mmCIF (`.cif`, `.mmcif`), PyMOL sessions (`.pse`), Mol/SDF (`.mol`, `.sdf`) and Mol2 (`.mol2`). On macOS and Ubuntu, only checked types change. Windows registers the checked formats and opens Settings for the user to confirm the preferred app. Choose Skip to keep existing preferences. Reopen this setup through **AI Assistant → File Types…**. PyMOL-based app and format-labeled document icons are bundled. Finder may need a moment to refresh cached icons after a preference changes. File association setup is per user and requires no administrator password.
 
@@ -53,7 +71,7 @@ The assistant panel's initial width is 238 logical pixels, 30% narrower than the
 
 Normal PyMOL tools work offline. Settings, saved API credentials, ChatGPT sessions, launch logs, conversation history and checkpoints live in `~/Library/Application Support/PyMOL AI-Assistant`, on macOS, `%LOCALAPPDATA%/PyMOL AI-Assistant` on Windows, or `$XDG_CONFIG_HOME/pymol-ai-assistant` (default `~/.config/pymol-ai-assistant`) on Linux, outside documents and exports. Credential files are restricted to the current user; they are not encrypted by this initial file-based helper. Disconnect retains saved API settings; Forget removes them. ChatGPT sign-out attempts revocation and reports an unconfirmed revocation.
 
-The app ignores other PyMOL startup scripts/plugins at launch. Its standard PyMOL menus remain available for molecular workflows. The native workflow gates installer creation on frozen GUI, Draw/Ray, graphics menu/tooltip and AI integration checks. Windows and Ubuntu installer jobs also install the package and exercise the installed Draw/Ray popup. Developer ID signing/notarization and validation on other Macs remain release work. A local ad-hoc signature does not constitute Apple notarization.
+The app ignores other PyMOL startup scripts/plugins at launch. Its standard PyMOL menus remain available for molecular workflows. The native workflow gates installer creation on frozen GUI, Draw/Ray, graphics menu/tooltip and AI integration checks. Windows and Ubuntu installer jobs also install the package and exercise the installed Draw/Ray popup.
 
 ## Source and build
 

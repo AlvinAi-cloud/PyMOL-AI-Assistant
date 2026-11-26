@@ -9,12 +9,15 @@ from pathlib import Path
 from .config import profile_dir, write_json
 from .commands import NativeCommands, CommandCancelled
 from .graphics import GraphicsControls
+from .focus import apply_focus, focus_target
 
 NAME = re.compile(r"[A-Za-z][A-Za-z0-9_]{0,47}\Z")
 REPRESENTATIONS = {"cartoon", "sticks", "spheres", "surface", "ribbon", "lines", "nonbonded", "mesh", "dots"}
 FIELDS = {
     "graphics_preset": {"operation", "preset"},
     "graphics_options": {"operation", "options"},
+    "graphics_palette": {"operation", "palette", "selection"},
+    "graphics_focus": {"operation", "selection"},
     "graphics_reset": {"operation"},
     "inspect_view": {"operation", "target"},
     "get_sequence": {"operation", "selection"},
@@ -45,13 +48,22 @@ Return one JSON object: {"message":"your explanation", "actions":[...]}. Use an 
 Actions execute automatically.
 For graphics styling, use the built-in controls rather than inventing preset command recipes:
 {"operation":"graphics_preset","preset":"soft"}
-Preset IDs: simple, soft, full, flat, publication, illustration.
+Use the lighting preset IDs listed in scene.graphics.presets.
 {"operation":"graphics_options","options":{"shadows":false,"silhouettes":true,"background":"transparent","material":"matte","depth_cue":false}}
-Options may contain any nonempty subset of those fields. Background is white, black or transparent; material is matte or glossy; other options are booleans.
+Use any nonempty subset of scene.graphics.availableOptions. Outline options tune contours when silhouettes are enabled. High quality smooths Ray edges and uses more time and memory.
+For OPTIONAL decorative coloring only when the user asks to recolor, use:
+{"operation":"graphics_palette","palette":"pastel_chains","selection":"polymer"}
+Use the palette IDs in scene.graphics.palettes. Only polymer atoms within the selection are colored; ligands and other nonpolymers retain their colors.
+Palettes are not confidence, B-factor or hydrophobicity measurements. Never infer pLDDT from an unknown structure's B-factor column. Colors repeat after six chains; the gradient follows stored residue order per object/segment/chain and does not fill unresolved residues.
+Presets and Reset graphics do not restore colors overwritten by a palette. Use restore_checkpoint to undo that change when requested.
+For a translucent protein with opaque ligand or selected-residue sticks, use:
+{"operation":"graphics_focus","selection":"organic"}
+Alternatively, specify a protein residue selection, or combine it with organic to include ligands.
+This focus preset works on enabled objects. It switches the protein to a 70%-transparent cartoon, keeps existing protein surface patches with matching transparency, and shows highlighted whole residues or ligands as opaque sticks. Use Soft lighting for a clear starting point on a pocket or ligand. Use restore_checkpoint to reverse a focus change when asked.
 {"operation":"graphics_reset"} resets rendering to Simple and white without changing orientation, representations or atom colors.
-All presets preserve the camera, representations and molecular colors. Publication sets a white background.
-Apply a preset first, then independent options. scene.graphics reports actual settings and available choices, including changes made manually.
-Shadows and silhouettes are visible in Ray renders. Transparent backgrounds are exported in PNG, while the interactive viewport stays white.
+Lighting presets preserve the camera, representations and atom colors. Publication sets a white background.
+Apply a lighting preset first, then independent options. scene.graphics reports current settings, including changes made manually.
+Shadows and silhouettes are visible in Ray renders. Choose the transparent background option for an alpha channel in PNG exports.
 If the user requests a rendered preview or export, use the native ray/png commands, then inspect results. Do not claim an interactive screenshot contains Ray-only effects before rendering.
 Prefer the general PyMOL command-line action for other molecular operations:
 {"operation":"command","command":"hide everything, all; show cartoon, polymer; color marine, chain A"}
@@ -228,6 +240,10 @@ class MolecularTools:
                         raise ValueError("A proposed selection matches no atoms: " + action[key])
                     if op == "distance" and count != 1:
                         raise ValueError("Each distance selection must contain exactly one atom.")
+            if op == "graphics_palette":
+                self.graphics.validate_palette(action["palette"], expanded)
+            if op == "graphics_focus":
+                focus_target(self.cmd, expanded)
             if op in {"select", "distance"}:
                 if not isinstance(action["name"], str) or not NAME.fullmatch(action["name"]) or action["name"] in {"all", "none", "sele"}:
                     raise ValueError("Use a simple new name for the selection or measurement.")
@@ -286,11 +302,15 @@ class MolecularTools:
                 if self.cancelled.is_set():
                     raise CommandCancelled("Stopped. Commands already completed remain applied.")
                 op = action["operation"]
-                if op in {"graphics_preset", "graphics_options", "graphics_reset"}:
+                if op in {"graphics_preset", "graphics_options", "graphics_reset", "graphics_palette", "graphics_focus"}:
                     if op == "graphics_preset":
                         value = self.graphics.apply_preset(action["preset"])
                     elif op == "graphics_options":
                         value = self.graphics.set_options(action["options"])
+                    elif op == "graphics_palette":
+                        value = self.graphics.apply_palette(action["palette"], action["selection"])
+                    elif op == "graphics_focus":
+                        value = apply_focus(self.cmd, action["selection"])
                     else:
                         value = self.graphics.reset()
                     records.append({"command": op + " " + json.dumps({k:v for k,v in action.items() if k != "operation"}), "ok": True, "result": value})

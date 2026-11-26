@@ -11,6 +11,19 @@ from pymol_ai_assistant import config, associations
 
 
 class DesktopTests(unittest.TestCase):
+    def test_local_review_cannot_register_preferred_file_types(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            bundle = Path(temporary) / "Review.app"
+            resources = bundle / "Contents/Resources"
+            resources.mkdir(parents=True)
+            (resources / "LOCAL_REVIEW").touch()
+            native = mock.Mock()
+            with mock.patch.object(sys, "frozen", True, create=True), mock.patch.object(sys, "platform", "darwin"), mock.patch.object(config, "resources_dir", return_value=resources):
+                changed, errors = associations.set_preferred_types([2], native=native, bundle=bundle)
+            self.assertEqual(changed, [])
+            self.assertIn("installed PyMOL AI-Assistant", errors[0])
+            self.assertEqual(native.mock_calls, [])
+
     def test_frozen_resources_are_beside_windows_linux_exe_and_inside_mac_bundle(self):
         with mock.patch.object(sys, "frozen", True, create=True):
             with mock.patch.object(sys, "platform", "darwin"), mock.patch.object(sys, "executable", "/tmp/Test.app/Contents/MacOS/Test"):

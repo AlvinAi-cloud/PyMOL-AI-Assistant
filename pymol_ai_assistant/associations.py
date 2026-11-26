@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from . import APP_NAME
-from .config import profile_dir, write_json
+from .config import is_review_build, profile_dir, write_json
 
 BUNDLE_ID = "org.pymol-ai-assistant.desktop"
 FILE_TYPES = [
@@ -101,6 +101,8 @@ class LaunchServices:
 
 
 def set_preferred_types(indices, native=None, bundle=None):
+    if is_review_build():
+        return [], ["Use the installed PyMOL AI-Assistant to change preferred file types."]
     if native is None and sys.platform != "darwin":
         return set_desktop_types(indices)
     native = native or LaunchServices()

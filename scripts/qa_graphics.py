@@ -7,7 +7,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from pymol.Qt import QtCore, QtGui, QtWidgets
 from pmg_qt import pymol_qt_gui
-from pymol_ai_assistant.graphics import PRESETS
+from pymol_ai_assistant.graphics import PRESETS, PALETTES
 from pymol_ai_assistant import __version__
 from pymol_ai_assistant.vision import capture_view
 from pymol_ai_assistant.config import write_json
@@ -23,15 +23,19 @@ class Provider(BaseHTTPRequestHandler):
             prompt=json.loads(body['messages'][1]['content']);requests.append(prompt)
             advertised={p['id'] for p in prompt['scene']['graphics']['presets']}
             assert advertised==set(PRESETS)
+            assert {p['id'] for p in prompt['scene']['graphics']['palettes']}==set(PALETTES)
             if len(requests)==1:
-                actions=[{'operation':'graphics_preset','preset':'illustration'},
-                         {'operation':'graphics_options','options':{'background':'transparent','material':'matte','shadows':False,'silhouettes':True,'depth_cue':False}},
+                actions=[{'operation':'graphics_preset','preset':'paper_cutout'},
+                         {'operation':'graphics_palette','palette':'pastel_chains','selection':'polymer'},
+                         {'operation':'graphics_options','options':{'background':'transparent','material':'matte','shadows':False,'silhouettes':True,'depth_cue':False,'surface_depth':True,'outline_strength':'fine','outline_color':'charcoal','quality':'high'}},
                          {'operation':'command','command':'png '+str(OUT/'ai-transparent.png')+', width=400, height=300, ray=1'}]
             else:
                 assert prompt['toolResults'][-1]['ok']
                 execution=json.loads(prompt['toolResults'][-1]['execution'])
-                assert execution['results'][0]['result']['preset']=='illustration'
-                assert execution['results'][1]['result']['current']['background']=='transparent'
+                assert execution['results'][0]['result']['preset']=='paper_cutout'
+                assert execution['results'][1]['result']['palette']=='pastel_chains'
+                assert execution['results'][1]['result']['polymerAtomsColored']>0
+                assert execution['results'][2]['result']['current']['background']=='transparent'
                 actions=[]
             reply=json.dumps({'message':'Use the named graphics controls.' if actions else 'The actual graphics results and transparent export succeeded.','actions':actions})
             encoded=json.dumps({'choices':[{'message':{'content':reply},'finish_reason':'stop'}]}).encode()
@@ -57,6 +61,9 @@ def completed():
         assert any(image.pixelColor(x,y).alpha()>0 for x in range(0,400,10) for y in range(0,300,10))
         assert all(abs(a-b)<1e-5 for a,b in zip(checks['originalView'],w.cmd.get_view()))
         g.refresh();assert g.choices['background']['transparent'].isChecked() and g.choices['material']['matte'].isChecked()
+        assert g.toggles['surface_depth'].isChecked() and g.choices['outline_strength']['fine'].isChecked()
+        assert g.choices['outline_color']['charcoal'].isChecked() and g.choices['quality']['high'].isChecked()
+        checks.update(aiPolymerPalette=True, expandedOptionsReflectAI=True)
         checks.update(aiNamedPresetAndOptions=True,transparentRayPNG=True,preservedCamera=True,menuReflectsAI=True)
         g.preview_action.trigger()
         checks['renderPreviewAction']=True
@@ -81,7 +88,7 @@ def configured(value,error):
     if error:finish(str(error));return
     w=pymol_qt_gui.window;d=w.ai_assistant;d.restored(value,None)
     d.agent.finished.connect(completed)
-    d.input.setPlainText('Apply Illustration, matte material and a transparent background, then export a 400 by 300 PNG.')
+    d.input.setPlainText('Apply Paper Cutout, pastel chain colors, matte material and a transparent background, then export a 400 by 300 PNG.')
     d.send()
 
 def ready():
@@ -100,7 +107,9 @@ def ready():
         builder=next(b for b in w.findChildren(QtWidgets.QPushButton) if b.text()=='Builder')
         assert button.mapTo(w,QtCore.QPoint(0,0)).y()>builder.mapTo(w,QtCore.QPoint(0,0)).y()
         assert not w.findChild(QtWidgets.QToolBar,'graphics_presets_fallback_toolbar')
-        assert len(g.presets)==6 and 'gold_illustration' not in g.presets
+        assert len(g.presets)==8 and 'gold_illustration' not in g.presets
+        assert {'simple','soft','full','flat','publication','illustration'} <= set(g.presets)
+        checks['existingSixPresetsRetained']=True
         movie=next(b for b in w.findChildren(QtWidgets.QPushButton) if b.text()=='|<')
         row_gap=builder.mapTo(w,QtCore.QPoint(0,0)).y()-movie.mapTo(w,QtCore.QPoint(0,0)).y()-movie.height()
         preset_gap=button.mapTo(w,QtCore.QPoint(0,0)).y()-builder.mapTo(w,QtCore.QPoint(0,0)).y()-builder.height()
@@ -117,13 +126,19 @@ def ready():
             g.presets[key].trigger()
             assert d.tools.last_execution['ok']
             assert d.tools.last_execution['results'][0]['result']['preset']==key
-        for key in ['shadows','silhouettes','depth_cue']:
+        for key in ['shadows','silhouettes','depth_cue','surface_depth']:
             g.refresh();g.toggles[key].trigger();assert d.tools.graphics.state()[key]==g.toggles[key].isChecked()
         for value in ['white','black','transparent']:
             g.choices['background'][value].trigger();assert d.tools.graphics.state()['background']==value
         for value in ['matte','glossy']:
             g.choices['material'][value].trigger();assert d.tools.graphics.state()['material']==value
-        checks.update(sixMenuPresets=True,shortcutUnderBuilderProperties=True,sharedMenu=True,independentControls=True)
+        for key in ['outline_strength','outline_color','projection','quality']:
+            for value, action in g.choices[key].items():
+                action.trigger();assert d.tools.graphics.state()[key]==value
+        for key, action in g.palettes.items():
+            action.trigger();assert d.tools.last_execution['results'][0]['result']['palette']==key
+        c.set_view(checks['originalView'])
+        checks.update(eightMenuPresets=True,explicitPolymerPalettes=True,shortcutUnderBuilderProperties=True,sharedMenu=True,independentControls=True)
         g.menu.popup(g.button.mapToGlobal(QtCore.QPoint(0,g.button.height())))
         QtCore.QTimer.singleShot(250,show_tooltip)
     except Exception:finish(traceback.format_exc())

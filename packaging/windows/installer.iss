@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "0.6.0"
+  #define AppVersion "0.7.0"
 #endif
 #ifndef BundleDir
   #error BundleDir must be the native frozen app directory
